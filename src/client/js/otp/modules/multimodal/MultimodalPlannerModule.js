@@ -68,10 +68,10 @@ otp.modules.multimodal.MultimodalPlannerModule =
 
         modeSelector.addModeControl(new otp.widgets.tripoptions.BikeTriangle(this.optionsWidget));
 
-        modeSelector.addModeControl(new otp.widgets.tripoptions.CombinedModeWidget(this.optionsWidget));
-
-        modeSelector.addModeControl(new otp.widgets.tripoptions.SortedSelector(this.optionsWidget));
-
+        if (otp.config.multimode === true) {
+            modeSelector.addModeControl(new otp.widgets.tripoptions.CombinedModeWidget(this.optionsWidget));
+            modeSelector.addModeControl(new otp.widgets.tripoptions.SortedSelector(this.optionsWidget));
+        }
 
         // Nasconde dall'interfaccia il selettore delle rotte preferite; di default è nascosto
         if(otp.config.showPreferedRoutes === undefined || otp.config.showPreferedRoutes === true) {

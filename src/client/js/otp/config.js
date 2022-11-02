@@ -6,6 +6,8 @@ otp.config = {
     showPreferedRoutes: false,
     // Nasconde "banned routes"
     showBannedRoutes: false,
+    // Abilita la modalità multipla - sperimentale
+    multimode: false,
 
 
     //If enabled it shows popup window with all planner responses in JSON
@@ -316,19 +318,21 @@ i18n.init(options, function(t) {
  */
 otp.config.modes = {
 
-    //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
-    "TRANSIT,WALK"             : _tr("Transit"),
-    /*//TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
-    "BICYCLE, TRANSIT"          : _tr("Bicycle &amp; Transit"),*/
-    "BICYCLE_DROPOFF,TRANSIT" : _tr("Bicycle &amp; Transit"),
+
     //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
     "WALK"                     : _tr('Walk Only'),
+
+
+    /*
+    //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
+    //"TRANSIT,WALK"             : _tr("Transit"),
+    "BICYCLE_DROPOFF,TRANSIT" : _tr("Bicycle &amp; Transit"),
     //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
     "CAR"                      : _tr('Car Only'),
     //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
     "CAR_DROPOFF,TRANSIT"      : _tr('Kiss and Ride (Car Dropoff)')
-
-    /*
+    //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
+    "BICYCLE, TRANSIT"          : _tr("Bicycle &amp; Transit"),
     //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)
     "BICYCLE"                  : _tr('Bicycle Only'),
     //TRANSLATORS: Travel by: mode of transport (Used in selection in Travel Options widgets)

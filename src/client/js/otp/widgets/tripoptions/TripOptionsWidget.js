@@ -527,6 +527,7 @@ otp.widgets.tripoptions.SortedSelector =
         }
     });
 
+
 otp.widgets.tripoptions.CombinedModeWidget =
     otp.Class(otp.widgets.tripoptions.TripOptionsWidgetControl, {
 
@@ -542,21 +543,23 @@ otp.widgets.tripoptions.CombinedModeWidget =
         this.mm = otp.config.multimodes;
         this.modes = otp.config.modes;
 
-        // TODO da rivedere, funziona solo con una multimode
-        var keys = _.keys(this.mm)[0].split(':')[1].split('/');
         var content = ''
+        // TODO da rivedere, funziona solo con una multimode
+        if (this.mm !== null && _.keys(this.mm).length > 0) {
+            var keys = _.keys(this.mm)[0].split(':')[1].split('/');
 
-        keys.forEach(function (key, i) {
-            var label = otp.config.modes[key];
-            content +=
-                '<div className="notDraggable"> ' +
+            keys.forEach(function (key, i) {
+                var label = otp.config.modes[key];
+                content +=
+                    '<div className="notDraggable"> ' +
                     '<input type="checkbox" id="'+ i +'-input"/>' + label +
                     '<div> ' +
-                        '<textarea id="'+ i +'-params" style="width:300px; margin-top:8px; margin-bottom: 8px"rows="3" placeholder="" disabled></textarea> ' +
+                    '<textarea id="'+ i +'-params" style="width:300px; margin-top:8px; margin-bottom: 8px"rows="3" placeholder="" disabled></textarea> ' +
                     '</div>' +
-                ' </div>';
-            i += 1;
-        })
+                    ' </div>';
+                i += 1;
+            })
+        }
 
         this.setContent(content)
 
@@ -565,38 +568,40 @@ otp.widgets.tripoptions.CombinedModeWidget =
     doAfterLayout : function() {
         var this_ = this;
 
-        var keys = _.keys(this.mm)[0].split(':')[1].split('/');
+        if (this.mm !== null && _.keys(this.mm).length > 0) {
+            var keys = _.keys(this.mm)[0].split(':')[1].split('/');
 
-        keys.forEach(function (key, i) {
-            $("#" + i + "-input").change(function() {
-                $("#" + i + "-params").prop('disabled', !this.checked)
-            });
+            keys.forEach(function (key, i) {
+                $("#" + i + "-input").change(function() {
+                    $("#" + i + "-params").prop('disabled', !this.checked)
+                });
 
-            $("#" + i + "-input").change(function() {
-                this_.tripWidget.module.multimode[key] = this.checked;
-            });
+                $("#" + i + "-input").change(function() {
+                    this_.tripWidget.module.multimode[key] = this.checked;
+                });
 
-            $('#'+ i +'-params').change(function() {
-                var keyvalues = $('#'+ i +'-params').val().trim().split('\n');
+                $('#'+ i +'-params').change(function() {
+                    var keyvalues = $('#'+ i +'-params').val().trim().split('\n');
 
-                var params = {};
+                    var params = {};
 
-                keyvalues.forEach(function(keyvalue) {
-                    var split = keyvalue.trim().match(/^((?!#)[^=]+)=(.*)$/);
-                    if (split) {
-                        params[split[1]] = split[2];
+                    keyvalues.forEach(function(keyvalue) {
+                        var split = keyvalue.trim().match(/^((?!#)[^=]+)=(.*)$/);
+                        if (split) {
+                            params[split[1]] = split[2];
+                        }
+                    })
+
+                    var keys = _(params).keys().join(',');
+                    if (keys) {
+                        params['additionalParameters'] = keys;
+                        this_.tripWidget.module.multiparam[key] = params;
+                    } else {
+                        this_.tripWidget.module.multiparam[key] = null;
                     }
-                })
-
-                var keys = _(params).keys().join(',');
-                if (keys) {
-                    params['additionalParameters'] = keys;
-                    this_.tripWidget.module.multiparam[key] = params;
-                } else {
-                    this_.tripWidget.module.multiparam[key] = null;
-                }
-            });
-        })
+                });
+            })
+        }
     },
 
     restorePlan : function(data) {
@@ -674,28 +679,24 @@ otp.widgets.tripoptions.ModeSelector =
             html += '<option>'+text+'</option>';
         });
         // Combinate
-        _.each(this.combinedModes, function(text, key) {
-            html += '<option>'+text+'</option>';
-        });
+        if (otp.config.multimode === true)
+            _.each(this.combinedModes, function(text, key) {
+                html += '<option>'+text+'</option>';
+            });
         html += '</select>';
         html += '<div id="'+this.id+'-widgets" style="overflow: hidden;"></div>';
         html += "</div>";
 
         $(html).appendTo(this.$());
+
+        this.findMode(0);
         //this.setContent(content);
     },
 
     doAfterLayout : function() {
         var this_ = this;
         $("#"+this.id).change(function() {
-            var number_of_simple_modes = _.keys(this_.modes).length;
-            var key = _.keys(this_.modes)[this.selectedIndex];
-            // combinate
-            if (key === undefined)
-                key = _.keys(this_.combinedModes)[this.selectedIndex-number_of_simple_modes];
-            this_.tripWidget.inputChanged({
-                mode : key,
-            });
+            var mode = this.findMode(this.selectedIndex);
             this_.refreshModeControls();
         });
     },
@@ -738,7 +739,21 @@ otp.widgets.tripoptions.ModeSelector =
 
     addModeControl : function(widget) {
         this.modeControls.push(widget);
+    },
+
+    findMode : function(selectedIndex) {
+        var this_ = this;
+        var number_of_simple_modes = _.keys(this_.modes).length;
+        var key = _.keys(this_.modes)[selectedIndex];
+        // combinate
+        if (key === undefined)
+            key = _.keys(this_.combinedModes)[selectedIndex-number_of_simple_modes];
+        this_.tripWidget.inputChanged({
+            mode : key,
+        });
+        return key;
     }
+
 
 });
 

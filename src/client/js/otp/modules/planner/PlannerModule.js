@@ -49,6 +49,9 @@ otp.modules.planner.PlannerModule =
     pathMarkerLayer : null,
     highlightLayer  : null,
 
+    // per mantenere sempre il percorso diretto visibile
+    directPathLayer: null,
+
     startMarker     : null,
     endMarker       : null,
 
@@ -162,11 +165,13 @@ otp.modules.planner.PlannerModule =
         this.pathLayer = new L.LayerGroup();
         this.pathMarkerLayer = new L.LayerGroup();
         this.highlightLayer = new L.LayerGroup();
+        this.directPathLayer = new L.LayerGroup();
 
         this.addLayer("Highlights", this.highlightLayer);
         this.addLayer("Start/End Markers", this.markerLayer);
         this.addLayer("Paths", this.pathLayer);
         this.addLayer("Path Markers", this.pathMarkerLayer);
+        this.addLayer("Direct Path", this.directPathLayer);
 
         //this.webapp.indexApi.loadAgencies(this);
         this.webapp.indexApi.loadRoutes(this, function() {
@@ -559,7 +564,13 @@ otp.modules.planner.PlannerModule =
             var legColor = otp.util.Itin.getLegBackgroundColor(leg);
 
             polyline.setStyle({ color : legColor, weight: weight});
-            this.pathLayer.addLayer(polyline);
+
+            // TODO valutare se è un buon modo per distinguere l'itinerario diretto
+            // TODO probabilmente no perchè dovremo fare ricerche diverse per avere parametri differenti
+            if (itin.itinData.reference === true)
+                this.directPathLayer.addLayer(polyline);
+            else
+                this.pathLayer.addLayer(polyline);
             polyline.leg = leg;
             polyline.bindPopup("("+leg.routeShortName+") "+leg.routeLongName);
 

@@ -241,5 +241,6 @@
     "Total_transfer_time": "Interscambio",
     "Means_of_transport": "Mezzi di trasporto",
     "Combined": "Modalità combinata",
-    "Sort_by_time": "Ordina per orario di arrivo"
+    "Sort_by_time": "Ordina per orario di arrivo",
+    "Always_display_on_map": "Visualizza sempre sulla mappa"
 }

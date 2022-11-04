@@ -126,6 +126,11 @@ otp.modules.planner.PlannerModule =
         373 : _tr("If OptimizeType is TRIANGLE, triangleSafetyFactor, triangleSlopeFactor, and triangleTimeFactor must be set"),
     },
 
+    // TODO prova per mantenere gli itinerari a schermo
+    renderedItins: {},
+    keepVisible: [],
+    itinsToBeHidden: {},
+
 
 
 
@@ -352,89 +357,89 @@ otp.modules.planner.PlannerModule =
             //this.mode = modes[i];
             var _mode = modes[i];
 
-        if(existingQueryParams) {
-        	queryParams = existingQueryParams;
-        }
-        else {
-            if (this.startLatLng == null || this.endLatLng == null) {
-                // TODO: alert user
-                return;
+            if(existingQueryParams) {
+                queryParams = existingQueryParams;
+            }
+            else {
+                if (this.startLatLng == null || this.endLatLng == null) {
+                    // TODO: alert user
+                    return;
+                }
+
+                var addToStart = this.arriveBy ? 0 : this.startTimePadding;
+
+                queryParams = {
+                    fromPlace: this.getStartOTPString(),
+                    toPlace: this.getEndOTPString(),
+                    time: (this.time) ? otp.util.Time.correctAmPmTimeString(this.time) : moment().format(otp.config.apiTimeFormat),
+                    //time : (this.time) ? moment(this.time).add("s", addToStart).format("h:mma") : moment().add("s", addToStart).format("h:mma"),
+                    date: (this.date) ? moment(this.date, otp.config.locale.time.date_format).format(otp.config.apiDateFormat) : moment().format(otp.config.apiDateFormat),
+                    //mode: this.mode
+                    mode: _mode
+                };
+
+
+                // if (this.mode !== "CAR") _.extend(queryParams, {maxWalkDistance: this.maxWalkDistance});
+                if (_mode !== "CAR") _.extend(queryParams, {maxWalkDistance: this.maxWalkDistance});
+                if (this.arriveBy !== null) _.extend(queryParams, {arriveBy: this.arriveBy});
+                if (this.wheelchair !== null) _.extend(queryParams, {wheelchair: this.wheelchair});
+                if (this.preferredRoutes !== null) {
+                    queryParams.preferredRoutes = this.preferredRoutes;
+                    if (this.otherThanPreferredRoutesPenalty !== null)
+                        queryParams.otherThanPreferredRoutesPenalty = this.otherThanPreferredRoutesPenalty;
+                }
+
+                // Aggiungo !== undefined perché ho eliminato il selettore di rotte bannate
+                // Senza il controllo, inserisce un parametro che manda in errore il software
+                if (this.bannedRoutes !== null && this.bannedRoutes !== undefined) _.extend(queryParams, {bannedRoutes: this.bannedRoutes});
+                if (this.bannedTrips !== null) _.extend(queryParams, {bannedTrips: this.bannedTrips});
+                if (this.optimize !== null) _.extend(queryParams, {optimize: this.optimize});
+                if (this.optimize === 'TRIANGLE') {
+                    _.extend(queryParams, {
+                        triangleTimeFactor: this_.triangleTimeFactor,
+                        triangleSlopeFactor: this_.triangleSlopeFactor,
+                        triangleSafetyFactor: this_.triangleSafetyFactor
+                    });
+                }
+                if (this.maxHours) queryParams.maxHours = this.maxHours;
+                if (this.numItineraries) queryParams.numItineraries = this.numItineraries;
+                if (this.minTransferTime) queryParams.minTransferTime = this.minTransferTime;
+                if (this.showIntermediateStops) queryParams.showIntermediateStops = this.showIntermediateStops;
+                if (this.debugItineraryFilter !== null) _.extend(queryParams, {debugItineraryFilter: this.debugItineraryFilter});
+                if (this.sorted) _.extend(queryParams, {sorted: this.sorted})
+
+                if (otp.config.routerId !== undefined) {
+                    queryParams.routerId = otp.config.routerId;
+                }
+
+                if (this.additionalParameters) {
+                    _.extend(queryParams, this.additionalParameters);
+                }
+
+                if (this.multiparam[_mode]) {
+                    _.extend(queryParams, this.multiparam[_mode]);
+                }
+            }
+            $('#otp-spinner').show();
+
+            //sends wanted translation to server
+            _.extend(queryParams, {locale : otp.config.locale.config.locale_short} );
+
+            // Only save the state if 1) we are not loading from an existing state and 2) it differs from the previous state
+            if (window.history.pushState && !existingQueryParams && !_.isEqual(this.lastQueryParams, queryParams)) {
+                window.history.pushState(queryParams, null, this.constructLink(queryParams, {}));
             }
 
-            var addToStart = this.arriveBy ? 0 : this.startTimePadding;
+            this.lastQueryParams = queryParams;
 
-            queryParams = {
-                fromPlace: this.getStartOTPString(),
-                toPlace: this.getEndOTPString(),
-                time: (this.time) ? otp.util.Time.correctAmPmTimeString(this.time) : moment().format(otp.config.apiTimeFormat),
-                //time : (this.time) ? moment(this.time).add("s", addToStart).format("h:mma") : moment().add("s", addToStart).format("h:mma"),
-                date: (this.date) ? moment(this.date, otp.config.locale.time.date_format).format(otp.config.apiDateFormat) : moment().format(otp.config.apiDateFormat),
-                //mode: this.mode
-                mode: _mode
-            };
+            this.planTripRequestCount = 0;
 
-
-            // if (this.mode !== "CAR") _.extend(queryParams, {maxWalkDistance: this.maxWalkDistance});
-            if (_mode !== "CAR") _.extend(queryParams, {maxWalkDistance: this.maxWalkDistance});
-            if (this.arriveBy !== null) _.extend(queryParams, {arriveBy: this.arriveBy});
-            if (this.wheelchair !== null) _.extend(queryParams, {wheelchair: this.wheelchair});
-            if (this.preferredRoutes !== null) {
-                queryParams.preferredRoutes = this.preferredRoutes;
-                if (this.otherThanPreferredRoutesPenalty !== null)
-                    queryParams.otherThanPreferredRoutesPenalty = this.otherThanPreferredRoutesPenalty;
-            }
-
-            // Aggiungo !== undefined perché ho eliminato il selettore di rotte bannate
-            // Senza il controllo, inserisce un parametro che manda in errore il software
-            if (this.bannedRoutes !== null && this.bannedRoutes !== undefined) _.extend(queryParams, {bannedRoutes: this.bannedRoutes});
-            if (this.bannedTrips !== null) _.extend(queryParams, {bannedTrips: this.bannedTrips});
-            if (this.optimize !== null) _.extend(queryParams, {optimize: this.optimize});
-            if (this.optimize === 'TRIANGLE') {
-                _.extend(queryParams, {
-                    triangleTimeFactor: this_.triangleTimeFactor,
-                    triangleSlopeFactor: this_.triangleSlopeFactor,
-                    triangleSafetyFactor: this_.triangleSafetyFactor
-                });
-            }
-            if (this.maxHours) queryParams.maxHours = this.maxHours;
-            if (this.numItineraries) queryParams.numItineraries = this.numItineraries;
-            if (this.minTransferTime) queryParams.minTransferTime = this.minTransferTime;
-            if (this.showIntermediateStops) queryParams.showIntermediateStops = this.showIntermediateStops;
-            if (this.debugItineraryFilter !== null) _.extend(queryParams, {debugItineraryFilter: this.debugItineraryFilter});
-            if (this.sorted) _.extend(queryParams, {sorted: this.sorted})
-
-            if (otp.config.routerId !== undefined) {
-                queryParams.routerId = otp.config.routerId;
-            }
-
-            if (this.additionalParameters) {
-                _.extend(queryParams, this.additionalParameters);
-            }
-
-            if (this.multiparam[_mode]) {
-                _.extend(queryParams, this.multiparam[_mode]);
-            }
-        }
-        $('#otp-spinner').show();
-
-        //sends wanted translation to server
-        _.extend(queryParams, {locale : otp.config.locale.config.locale_short} );
-
-        // Only save the state if 1) we are not loading from an existing state and 2) it differs from the previous state
-        if (window.history.pushState && !existingQueryParams && !_.isEqual(this.lastQueryParams, queryParams)) {
-            window.history.pushState(queryParams, null, this.constructLink(queryParams, {}));
-        }
-
-        this.lastQueryParams = queryParams;
-
-        this.planTripRequestCount = 0;
-
-        this.planTripRequest(url, queryParams, function(tripPlan) {
-            var restoring = (existingQueryParams !== undefined)
-            this_.processPlan(tripPlan, restoring, append=!first_mode);
-            first_mode = false;
-            this_.updateTipStep(3);
-        });
+            this.planTripRequest(url, queryParams, function(tripPlan) {
+                var restoring = (existingQueryParams !== undefined)
+                this_.processPlan(tripPlan, restoring, append=!first_mode);
+                first_mode = false;
+                this_.updateTipStep(3);
+            });
         }
     },
 
@@ -546,13 +551,37 @@ otp.modules.planner.PlannerModule =
             otp.util.Text.constructUrlParamString(_.extend(_.clone(queryParams), additionalParams));
     },
 
+    eraseItinerary : function(itin, keys, id) {
+        if (id !== -1 && keys.hasOwnProperty(id) && keys[id] !== null) {
+            this.directPathLayer.removeLayer(keys[id]);
+            delete keys[id];
+        }
+        return keys;
+    },
+
+    updateLayer : function() {
+        var this_ = this;
+        Object.keys(this_.renderedItins).forEach(id => {
+                if (!this_.keepVisible.includes(id)) {
+                    this_.renderedItins[id].forEach(leg => {
+                        this_.pathLayer.removeLayer(leg)
+                    });
+                    delete this_.renderedItins[id];
+                }
+            }
+        )
+    },
+
     drawItinerary : function(itin) {
         var this_ = this;
 
-        this.pathLayer.clearLayers();
+        this.updateLayer();
+        //this.pathLayer.clearLayers();
         this.pathMarkerLayer.clearLayers();
 
         var queryParams = itin.tripPlan.queryParams;
+        // TODO Qui!!!! Devo evitare che ridisegni l'itinerario
+        var itinLine = [];
 
         console.log(itin.itinData);
         for(var i=0; i < itin.itinData.legs.length; i++) {
@@ -565,74 +594,44 @@ otp.modules.planner.PlannerModule =
 
             polyline.setStyle({ color : legColor, weight: weight});
 
-            // TODO valutare se è un buon modo per distinguere l'itinerario diretto
-            // TODO probabilmente no perchè dovremo fare ricerche diverse per avere parametri differenti
-            if (itin.itinData.reference === true)
-                this.directPathLayer.addLayer(polyline);
-            else
-                this.pathLayer.addLayer(polyline);
+            this.pathLayer.addLayer(polyline);
+            itinLine.push(polyline);
+
             polyline.leg = leg;
             polyline.bindPopup("("+leg.routeShortName+") "+leg.routeLongName);
-
-            /* Attempt at hover functionality for trip segments on map; disabled due to "flickering" problem
-               Alt. future approach: create invisible polygon buffers around polylines
-
-            polyline.on('mouseover', function(e) {
-                if(e.target.hover) return;
-                console.log('mouseover');
-                this_.highlightLeg(e.target.leg);
-                this_.pathMarkerLayer.clearLayers();
-                this_.drawStartBubble(e.target.leg, true);
-                this_.drawEndBubble(e.target.leg, true);
-                e.target.hover = true;
-            });
-            polyline.on('mouseout', function(e) {
-                var lpt = e.layerPoint, minDist = 100;
-                for(var p=0; p<e.target._parts[0].length-1; p++) {
-                    var dist = L.LineUtil.pointToSegmentDistance(lpt, e.target._parts[0][p], e.target._parts[0][p+1]);
-                    minDist = Math.min(minDist, dist)
-                }
-                console.log("minDist: "+minDist);
-                if(minDist < weight/2) return;
-                this_.clearHighlights();
-                this_.pathMarkerLayer.clearLayers();
-                this_.drawAllStartBubbles(itin);
-                e.target.hover = false;
-            });
-            */
 
             if(otp.util.Itin.isTransit(leg.mode)) {
                 this.drawStartBubble(leg, false);
             }
             else if(leg.mode === 'BICYCLE') {
                 if(queryParams.mode === 'WALK,BICYCLE_RENT') { // bikeshare trip
-                        //TRANSLATORS: shown when clicked on route on map
-                	polyline.bindPopup(_tr('Your %(bike_share_name)s route', {'bike_share_name': otp.config.bikeshareName}));
+                    //TRANSLATORS: shown when clicked on route on map
+                    polyline.bindPopup(_tr('Your %(bike_share_name)s route', {'bike_share_name': otp.config.bikeshareName}));
                     //var start_and_end_stations = this.processStations(polyline.getLatLngs()[0], polyline.getLatLngs()[polyline.getLatLngs().length-1]);
                 }
                 else { // regular bike trip
-                        //TRANSLATORS: Text which is shown when clicking bike route
-                        //in a map
-                	polyline.bindPopup(_tr('Your bike route'));
-                	//this.resetStationMarkers();
+                    //TRANSLATORS: Text which is shown when clicking bike route
+                    //in a map
+                    polyline.bindPopup(_tr('Your bike route'));
+                    //this.resetStationMarkers();
                 }
             }
             else if(leg.mode === 'WALK') {
                 if(queryParams.mode === 'WALK,BICYCLE_RENT') {
                     if(i == 0) {
                         //TRANSLATORS:Shown in map when clicking on a route
-                    	polyline.bindPopup(_tr('Walk to the %(bike_share_name)s dock.', {'bike_share_name': otp.config.bikeshareName}));
+                        polyline.bindPopup(_tr('Walk to the %(bike_share_name)s dock.', {'bike_share_name': otp.config.bikeshareName}));
                     }
                     if(i == 2) {
                         //TRANSLATORS: Shown in map when clicking on a route
-                    	polyline.bindPopup(_tr('Walk from the %(bike_share_name)s dock to your destination.', {'bike_share_name': otp.config.bikeshareName}));
+                        polyline.bindPopup(_tr('Walk from the %(bike_share_name)s dock to your destination.', {'bike_share_name': otp.config.bikeshareName}));
                     }
                 }
                 else { // regular walking trip
                     //TRANSLATORS: Text which is shown when clicking walking
                     //route in a map
-                	polyline.bindPopup(_tr('Your walk route'));
-                	//this.resetStationMarkers();
+                    polyline.bindPopup(_tr('Your walk route'));
+                    //this.resetStationMarkers();
                 }
             }
             else if(leg.mode === 'SCOOTER') {
@@ -647,6 +646,8 @@ otp.modules.planner.PlannerModule =
             }
         }
         if (otp.config.zoomToFitResults) this.webapp.map.lmap.fitBounds(itin.getBoundsArray());
+
+        return itinLine;
     },
 
     highlightLeg : function(leg) {

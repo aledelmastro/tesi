@@ -527,6 +527,43 @@ otp.widgets.tripoptions.SortedSelector =
         }
     });
 
+otp.widgets.tripoptions.ReferenceSelector =
+    otp.Class(otp.widgets.tripoptions.TripOptionsWidgetControl, {
+
+        id           :  null,
+        //TRANSLATORS: label for checkbox
+        label        : _tr("Reference"),
+
+        initialize : function(tripWidget) {
+
+            otp.widgets.tripoptions.TripOptionsWidgetControl.prototype.initialize.apply(this, arguments);
+
+            this.id = tripWidget.id;
+
+
+            ich['otp-tripOptions-reference']({
+                widgetId : this.id,
+                label : this.label,
+            }).appendTo(this.$());
+
+        },
+
+        doAfterLayout : function() {
+            var this_ = this;
+
+            $("#"+this.id+"-reference-input").change(function() {
+                this_.tripWidget.module.reference = this.checked;
+            });
+        },
+
+        restorePlan : function(data) {
+
+        },
+
+        isApplicableForMode : function(mode) {
+            return true;
+        }
+    });
 
 otp.widgets.tripoptions.CombinedModeWidget =
     otp.Class(otp.widgets.tripoptions.TripOptionsWidgetControl, {
@@ -696,7 +733,7 @@ otp.widgets.tripoptions.ModeSelector =
     doAfterLayout : function() {
         var this_ = this;
         $("#"+this.id).change(function() {
-            var mode = this.findMode(this.selectedIndex);
+            var mode = this_.findMode(this.selectedIndex);
             this_.refreshModeControls();
         });
     },

@@ -156,9 +156,11 @@ otp.widgets.ItinerariesWidget =
             .appendTo(this.itinsAccord)
             .data('itin', itin)
             .data('index', i)
-            .click(function(evt) {
+            .click({index: i}, function(evt) {
                 var itin = $(this).data('itin');
-                this_.module.drawItinerary(itin);
+                // Memorizzo il render dell'itinerario
+                this_.module.renderedItins[evt.data.index] = this_.module.drawItinerary(itin);
+                //this_.module.drawItinerary(itin);
                 this_.activeIndex = $(this).data('index');
             });
 
@@ -431,6 +433,22 @@ otp.widgets.ItinerariesWidget =
 
         // add start and end time rows and the main leg accordion display
         //TRANSLATORS: Start: Time and date (Shown before path itinerary)
+
+        // TODO raffazzonato
+        var chkDiv = $('<div class="otp-itinsAccord-check">');
+        $('<input id="chk-display" type="checkbox" value='+index+'>').appendTo(chkDiv).click(function (e) {
+            var checked = e.target.checked;
+
+            if(checked) {
+                this_.module.keepVisible.push(e.target.value);
+            } else {
+                this_.module.keepVisible = this_.module.keepVisible.filter(v => v !== e.target.value);
+            }
+
+        })
+        $('<label for="chk-display"><b>'+_tr("Always_display_on_map")+'</b></label></div>').appendTo(chkDiv);
+        chkDiv.appendTo(itinDiv);
+
         itinDiv.append("<div class='otp-itinStartRow'><b>" + pgettext('template', "Start") + "</b>: "+itin.getStartTimeStr()+"</div>");
         if(itin.itinData.systemNotices != null) {
             let systemTags;

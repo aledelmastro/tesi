@@ -73,6 +73,8 @@ otp.modules.multimodal.MultimodalPlannerModule =
             modeSelector.addModeControl(new otp.widgets.tripoptions.SortedSelector(this.optionsWidget));
         }
 
+        modeSelector.addModeControl(new otp.widgets.tripoptions.ReferenceSelector(this.optionsWidget))
+
         // Nasconde dall'interfaccia il selettore delle rotte preferite; di default è nascosto
         if(otp.config.showPreferedRoutes === undefined || otp.config.showPreferedRoutes === true) {
             modeSelector.addModeControl(new otp.widgets.tripoptions.PreferredRoutes(this.optionsWidget));
@@ -147,7 +149,7 @@ otp.modules.multimodal.MultimodalPlannerModule =
             this.optionsWidget.restorePlan(tripPlan);
         }*/
         if (tripPlan.itineraries.length > 0) {
-            this.drawItinerary(tripPlan.itineraries[0]);
+            this.renderedItins[0] = this.drawItinerary(tripPlan.itineraries[0]);
         }
     },
 

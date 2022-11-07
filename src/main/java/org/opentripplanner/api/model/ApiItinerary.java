@@ -12,11 +12,6 @@ import java.util.List;
 public class ApiItinerary {
 
     /**
-     * If the itinerary is used as a reference.
-     */
-    public boolean reference = false;
-
-    /**
      * Duration of the trip on this itinerary, in seconds.
      */
     public Long duration = 0L;

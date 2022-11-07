@@ -551,14 +551,6 @@ otp.modules.planner.PlannerModule =
             otp.util.Text.constructUrlParamString(_.extend(_.clone(queryParams), additionalParams));
     },
 
-    eraseItinerary : function(itin, keys, id) {
-        if (id !== -1 && keys.hasOwnProperty(id) && keys[id] !== null) {
-            this.directPathLayer.removeLayer(keys[id]);
-            delete keys[id];
-        }
-        return keys;
-    },
-
     updateLayer : function() {
         var this_ = this;
         Object.keys(this_.renderedItins).forEach(id => {
@@ -572,6 +564,15 @@ otp.modules.planner.PlannerModule =
         )
     },
 
+    drawItineraryIfNotAlreadyDrawn : function(this_, itin, id) {
+        var renderedItin = this_.module.renderedItins[id];
+        // Memorizzo il render dell'itinerario
+        if (renderedItin === undefined || renderedItin === null)
+            this_.module.renderedItins[id] = this_.module.drawItinerary(itin);
+        else
+            this_.module.updateLayer();
+    },
+
     drawItinerary : function(itin) {
         var this_ = this;
 
@@ -580,10 +581,10 @@ otp.modules.planner.PlannerModule =
         this.pathMarkerLayer.clearLayers();
 
         var queryParams = itin.tripPlan.queryParams;
-        // TODO Qui!!!! Devo evitare che ridisegni l'itinerario
         var itinLine = [];
 
         console.log(itin.itinData);
+
         for(var i=0; i < itin.itinData.legs.length; i++) {
             var leg = itin.itinData.legs[i];
 

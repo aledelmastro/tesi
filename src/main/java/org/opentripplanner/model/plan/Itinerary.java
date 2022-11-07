@@ -18,9 +18,6 @@ import org.opentripplanner.transit.raptor.util.PathStringBuilder;
  */
 public class Itinerary {
 
-    /** If the itinerary acts as reference for other ones */
-    public final boolean reference;
-
     /** Total duration of the itinerary in seconds */
     public final int durationSeconds;
 
@@ -152,8 +149,6 @@ public class Itinerary {
         this.waitingTimeSeconds = totals.waitingTimeSeconds;
         this.walkOnly = totals.walkOnly;
         this.streetOnly = totals.streetOnly;
-
-        this.reference = reference;
     }
 
     /**
@@ -299,7 +294,6 @@ public class Itinerary {
                 .addNum("elevationGained", elevationGained, 0.0)
                 .addCol("legs", legs)
                 .addObj("fare", fare)
-                .addBool("reference", reference)
                 .toString();
     }
 

@@ -158,9 +158,7 @@ otp.widgets.ItinerariesWidget =
             .data('index', i)
             .click({index: i}, function(evt) {
                 var itin = $(this).data('itin');
-                // Memorizzo il render dell'itinerario
-                this_.module.renderedItins[evt.data.index] = this_.module.drawItinerary(itin);
-                //this_.module.drawItinerary(itin);
+                this_.module.drawItineraryIfNotAlreadyDrawn(this_, itin, evt.data.index);
                 this_.activeIndex = $(this).data('index');
             });
 
@@ -434,7 +432,6 @@ otp.widgets.ItinerariesWidget =
         // add start and end time rows and the main leg accordion display
         //TRANSLATORS: Start: Time and date (Shown before path itinerary)
 
-        // TODO raffazzonato
         var chkDiv = $('<div class="otp-itinsAccord-check">');
         $('<input id="chk-display" type="checkbox" value='+index+'>').appendTo(chkDiv).click(function (e) {
             var checked = e.target.checked;
@@ -443,6 +440,7 @@ otp.widgets.ItinerariesWidget =
                 this_.module.keepVisible.push(e.target.value);
             } else {
                 this_.module.keepVisible = this_.module.keepVisible.filter(v => v !== e.target.value);
+                //this_.module.updateLayer();
             }
 
         })

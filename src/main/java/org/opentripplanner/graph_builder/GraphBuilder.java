@@ -15,6 +15,7 @@ import org.opentripplanner.datastore.CompositeDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.ext.dataoverlay.configure.DataOverlayFactory;
 import org.opentripplanner.ext.flex.FlexLocationsToStreetEdgesMapper;
+import org.opentripplanner.ext.greenrouting.GreenRouting;
 import org.opentripplanner.ext.transferanalyzer.DirectTransferAnalyzer;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.graph_builder.module.DirectTransferGenerator;
@@ -243,6 +244,12 @@ public class GraphBuilder implements Runnable {
             if(module != null) {
                 graphBuilder.addModule(module);
             }
+        }
+
+        // Prova di aggiunta di un modulo
+        if (OTPFeature.GreenNavigation.isOn()) {
+            var module = new GreenRouting();
+            graphBuilder.addModule(module);
         }
 
         return graphBuilder;

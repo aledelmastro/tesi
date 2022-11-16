@@ -75,6 +75,8 @@ public class StreetEdge extends Edge implements BikeWalkableEdge, Cloneable, Car
     private static final int BICYCLE_NOTHRUTRAFFIC = 7;
     private static final int WALK_NOTHRUTRAFFIC = 8;
 
+    public int tmp;
+
     /** back, roundabout, stairs, ... */
     private short flags;
 

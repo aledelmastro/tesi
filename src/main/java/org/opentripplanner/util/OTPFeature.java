@@ -1,4 +1,4 @@
-package org.opentripplanner.util;
+ package org.opentripplanner.util;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -25,6 +25,8 @@ public enum OTPFeature {
     TransferConstraints(true),
 
     // Sandbox extension features - Must be turned OFF by default
+    // TODO feature di prova
+    GreenNavigation(true),
     ActuatorAPI(false),
     DataOverlay(false),
     FlexRouting(false),

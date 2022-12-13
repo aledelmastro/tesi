@@ -1,0 +1,9 @@
+// build-config.json
+{
+  "greenRouting" :
+  {
+    "fileName": "green.json",
+	"id": "id"
+  }
+
+}

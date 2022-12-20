@@ -94,14 +94,6 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
     /** The complete list of incoming query parameters. */
     public final HashMap<String, String> parameters = new HashMap<String, String>();
 
-    /**
-     * Tempo di percorrenza massimo, in secondi, consentito per l'automobile.
-     */
-    public long maxCarUsage = Long.MAX_VALUE;
-
-    /** Percentuale massima di tragitto per cui è consentito utilizzare l'automobile */
-    public double maxCarPerc = Double.MAX_VALUE;
-
     /** The start location */
     public GenericLocation from;
 

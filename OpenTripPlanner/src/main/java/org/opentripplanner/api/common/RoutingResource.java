@@ -45,17 +45,6 @@ public abstract class RoutingResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingResource.class);
 
-    /**
-     * Il tempo massimo di percorrenza, espresso in secondi,
-     * consentito per l'automobile.
-     */
-    @QueryParam("maxCarUsage")
-    protected Long maxCarUsage;
-
-    /** Le percentuale massima del percorso totale che posso percorre in auto */
-    @QueryParam("maxCarPerc")
-    protected Double maxCarPerc;
-
     /** The start location -- either latitude, longitude pair in degrees or a Vertex
      *  label. For example, <code>40.714476,-74.005966</code> or
      *  <code>mtanyctsubway_A27_S</code>.  */
@@ -735,30 +724,6 @@ public abstract class RoutingResource {
     protected RoutingRequest buildRequest(MultivaluedMap<String, String> queryParameters) throws ParameterException {
         Router router = otpServer.getRouter();
         RoutingRequest request = router.defaultRoutingRequest.clone();
-
-        /*
-        TODO valutare come passare il parametro ai filtri.
-        L'implementazione attuale usa una proprietà di itineraryFilters, che però è un componente che viene riciclato.
-        Sono obbligato a reimpostare il valore di default quando il parametro non è richiesto, altrimenti continuerà
-        ad utilizzare il valore impostato in precedenza.
-        L'alternativa è fare come con numItineraries, dove il parametro non fa parte dello stato di itineraryFilters,
-        ma è passato di volta in volta tramite il metodo createFilterChain in
-        org.opentripplanner.routing.algorithm.mapping.RoutingRequestToFilterChainMapper. Lo svantaggio di questo metodo
-        è che devo aggiungere alla firma del builder ogni parametro che potrei voler usare, con la prima soluzione posso
-        inserirli direttamente in itineraryFilters.
-         */
-        if (maxCarUsage != null)
-            request.maxCarUsage = maxCarUsage;
-        else
-            request.maxCarUsage = Long.MAX_VALUE;
-
-        if (maxCarPerc != null)
-            request.maxCarPerc = maxCarPerc;
-        else
-            request.maxCarPerc = Double.MAX_VALUE;
-
-        request.itineraryFilters.maxCarUsage = request.maxCarUsage;
-        request.itineraryFilters.maxCarPerc = request.maxCarPerc;
 
 
         // The routing request should already contain defaults, which are set when it is initialized or in the JSON

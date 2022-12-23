@@ -1,0 +1,11 @@
+{
+	"type":"Feature",
+	"geometry":{
+	"type":"LineString",
+	"coordinates":[[7.6723374,45.0768138],[7.6723636,45.0768481],[7.6727323,45.0773465]]},
+	"properties":{
+		"highway":"residential",
+		"lit":"yes",
+		"name":"Via Filiberto Pingone","sidewalk":"both","surface":"asphalt"
+	}
+},

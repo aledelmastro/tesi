@@ -9,7 +9,7 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.util.I18NString;
 
 public class GreenStreetEdge extends StreetEdge implements GreenFactor {
-    public Integer greenyness = 0;
+    public Double greenyness = 0.0;
 
     public GreenStreetEdge(StreetVertex v1, StreetVertex v2, LineString geometry, I18NString name, double length, StreetTraversalPermission permission, boolean back) {
         super(v1, v2, geometry, name, length, permission, back);

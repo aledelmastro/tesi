@@ -12,7 +12,7 @@ import org.opentripplanner.routing.graph.Vertex;
 
 public class GreenEdgeRenderer implements EdgeVertexRenderer {
 
-    private ScalarColorPalette palette = new DefaultScalarColorPalette(1.0, 3.0, 10.0);
+    private ScalarColorPalette palette = new DefaultScalarColorPalette(1.0, 20, 10.0);
 
     public GreenEdgeRenderer() {
     }
@@ -21,10 +21,11 @@ public class GreenEdgeRenderer implements EdgeVertexRenderer {
     public boolean renderEdge(Edge e, EdgeVisualAttributes attrs) {
         if (e instanceof GreenStreetEdge) {
             var ge = (GreenStreetEdge) e;
-            attrs.color = palette.getColor(2);
+            attrs.color = palette.getColor(ge.greenyness);
+            attrs.label = ge.greenyness.toString();
         }
 
-        return !(e instanceof GreenStreetEdge);
+        return (e instanceof GreenStreetEdge);
     }
 
     @Override

@@ -2,8 +2,8 @@
 {
   "greenRouting" :
   {
-    "fileName": "green.json",
-	"id": "id"
+    "fileName": "data/green.json",
+	"id": "id",
+	"score": "score"
   }
-
 }

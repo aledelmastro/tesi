@@ -16,8 +16,8 @@ function App() {
   const [lng, setLng] = useState(7.681642);
   const [lat, setLat] = useState(45.0728662);
   const [zoom, setZoom] = useState(14);
-  const startMarker = useRef(null);
-  const endMarker = useRef(null);
+  const fromMarker = useRef(null);
+  const toMarker = useRef(null);
 
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -36,44 +36,33 @@ function App() {
     const lngLat = [popup.lng, popup.lat];
     const val = popup.lat.toFixed(4)+','+popup.lng.toFixed(4);
     if (from) {
-      setMarker(startMarker, lngLat);
+      setMarker(fromMarker, lngLat);
       setFrom(val);
     } else {
-      setMarker(endMarker, lngLat);
+      setMarker(toMarker, lngLat);
       setTo(val);
     }
+    clearStreet();
   }
 
-  function deleteStartMarker() {
-    startMarker.current.remove();
-    startMarker.current = null;
-  }
-
-  function deleteEndMarker() {
-    endMarker.current.remove();
-    endMarker.current = null;
+  function clear() {
+    clearStreet();
+    if (fromMarker.current !== null)
+      fromMarker.current.remove();
+    if (toMarker.current !== null)
+      toMarker.current.remove();
   }
 
   function clearStreet() {
     if (!mapUtils.current) return;
     mapUtils.current.clearStreet();
-    if (startMarker.current)
-      deleteStartMarker();
-    if (endMarker.current)
-      deleteEndMarker();
   }
 
   function plotResult(points, id, collapsed) {
     if (!mapUtils.current) return;
     mapUtils.current.addPath(points, id);
-    const startMarker = new mapboxgl.Marker({draggable: true})
-        .setLngLat(points[0])
-        .addTo(map.current);
-    const endMarker = new mapboxgl.Marker({draggable: true})
-        .setLngLat(points[points.length-1])
-        .addTo(map.current);
-    startMarker.current = startMarker;
-    endMarker.current = endMarker;
+    setMarker(fromMarker, points[0]);
+    setMarker(toMarker, points[points.length-1]);
   }
 
   useEffect(() => {

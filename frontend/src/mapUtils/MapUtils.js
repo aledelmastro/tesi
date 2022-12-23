@@ -33,9 +33,6 @@ class MapUtils {
     }
 
     clearStreet() {
-/*        this.startMarker.remove();
-        this.endMarker.remove();*/
-
         const source = this.map.getSource("STREET");
 
         source._data.features = [];
@@ -47,18 +44,6 @@ class MapUtils {
         const features = source._data.features;
 
         if (this.findFeature(features, id)) return;
-
-        const start = points[0];
-        const end = points[points.length-1];
-
-        /*this.startMarker.remove();
-        this.endMarker.remove();*/
-
-        /*this.startMarker.setLngLat(start)
-            .addTo(this.map);
-
-        this.endMarker.setLngLat(end)
-            .addTo(this.map);*/
 
         features.push(
             {
@@ -81,14 +66,14 @@ class MapUtils {
 
     fitBounds(lngs, lats) {
         let coeff = 0.0001;
-        const minLng = Math.min(... lngs);
-        const minLat = Math.min(... lngs);
-        const maxLng = Math.min(... lats);
-        const maxLat = Math.max(... lats);
+        const minLng = Math.min(...lngs);
+        const minLat = Math.min(...lngs);
+        const maxLng = Math.min(...lats);
+        const maxLat = Math.max(...lats);
 
         coeff = coeff*Math.hypot(maxLng - minLng, maxLat - minLat);
-        const sw = [Math.min(... lngs)-coeff, Math.min(... lats)-coeff]
-        const ne = [Math.max(... lngs)+coeff, Math.max(... lats)+coeff]
+        const sw = [Math.min(...lngs)-coeff, Math.min(...lats)-coeff]
+        const ne = [Math.max(...lngs)+coeff, Math.max(...lats)+coeff]
 
         this.map.fitBounds([sw, ne]);
     }
@@ -143,7 +128,8 @@ class MapUtils {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': '#A0A',
+                'line-color': '#52B780',
+                'line-opacity': 0.4,
                 'line-width': 8
             }
         });

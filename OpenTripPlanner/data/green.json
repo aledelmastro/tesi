@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+		"id": "29176417",
+		"score": 20.0
+	  },
+      "geometry": {
+        "coordinates": [
+          [
+            7.6723374,
+            45.0768138
+          ],
+          [
+            7.6723636,
+            45.0768481
+          ]
+        ],
+        "type": "LineString"
+      }
+    },
+	{
+      "type": "Feature",
+      "properties": {
+		"id": "29176417",
+		"score": 16.5
+	  },
+      "geometry": {
+        "coordinates": [
+          [
+            7.6723636,
+            45.0768481
+          ],
+          [
+            7.6727323,
+            45.0773465
+          ]
+        ],
+        "type": "LineString"
+      }
+    }
+  ]
+}

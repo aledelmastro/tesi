@@ -417,13 +417,17 @@
             <artifactId>gt-wfs-ng</artifactId>
             <version>${geotools.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojsondatastore</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
         <!-- provides EPSG database for projections (shapefile loading) -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
@@ -707,6 +711,13 @@
             <artifactId>exp4j</artifactId>
             <version>0.4.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.mapbox.mapboxsdk</groupId>
+            <artifactId>mapbox-sdk-geojson</artifactId>
+            <version>5.8.0</version>
+        </dependency>
+
+
     </dependencies>
 
     <profiles>

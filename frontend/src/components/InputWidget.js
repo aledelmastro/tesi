@@ -5,8 +5,8 @@ import LabelledInput from "./LabelledInput";
 async function submitRequest(event, props) {
     event.preventDefault();
 
+    props.submit();
     // TODO verificare formato correto
-    alert(props.from+" "+props.to);
     const res = await requestItinerary(props.from, props.to);
     props.setRes(res);
 }
@@ -32,7 +32,9 @@ InputWidget.propTypes = {
     setFrom: PropTypes.func.isRequired,
     setTo: PropTypes.func.isRequired,
     from: PropTypes.string.isRequired,
-    to: PropTypes.string.isRequired
+    to: PropTypes.string.isRequired,
+    submit: PropTypes.func.isRequired,
+    setRes: PropTypes.func.isRequired
 }
 
 export default InputWidget;

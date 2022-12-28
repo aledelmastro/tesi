@@ -2,12 +2,12 @@ package org.opentripplanner.ext.greenrouting;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.routing.graph.Edge;
 
 public class GreenSegment {
+
     long id;
     double score;
     Geometry geometry;
@@ -22,8 +22,8 @@ public class GreenSegment {
 
     void overlapWith(Edge edge) {
         overlaps.put(
-            edge,
-            this.geometry.intersection(edge.getGeometry()).getLength()
+                edge,
+                this.geometry.intersection(edge.getGeometry()).getLength()
         );
     }
 

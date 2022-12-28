@@ -4,6 +4,7 @@ import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig.GreenMappingMode;
 import org.opentripplanner.standalone.config.NodeAdapter;
 
+
 public class GreenRoutingConfigMapper {
 
     public static GreenRoutingConfig map(NodeAdapter c) {
@@ -17,12 +18,12 @@ public class GreenRoutingConfigMapper {
             case "fast":
                 mode = GreenMappingMode.FAST;
                 break;
-            case "weighted":
-                mode = GreenMappingMode.WEIGHTED;
+            case "average":
+                mode = GreenMappingMode.AVERAGE;
                 break;
-            case "fit":
+            /*case "fit":
                 mode = GreenMappingMode.FIT_DATA_SEGMENTS;
-                break;
+                break;*/
         }
 
 

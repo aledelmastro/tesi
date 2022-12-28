@@ -4,6 +4,7 @@
   {
     "fileName": "data/green.json",
 	"id": "id",
-	"score": "score"
+	"score": "score",
+	"mappingType": "weighted"
   }
 }

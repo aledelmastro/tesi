@@ -3,7 +3,7 @@ package org.opentripplanner.ext.greenrouting.configuration;
 public class GreenRoutingConfig {
     public enum GreenMappingMode{
         FAST,
-        WEIGHTED,
+        AVERAGE,
         FIT_DATA_SEGMENTS
     };
 
@@ -35,8 +35,8 @@ public class GreenRoutingConfig {
         return this.mode == GreenMappingMode.FAST;
     }
 
-    public boolean weightedMapping() {
-        return this.mode == GreenMappingMode.WEIGHTED;
+    public boolean averageMapping() {
+        return this.mode == GreenMappingMode.AVERAGE;
     }
 
     public boolean fitDataSegmentsMapping() {

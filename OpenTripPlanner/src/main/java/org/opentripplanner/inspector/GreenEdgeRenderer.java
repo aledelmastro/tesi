@@ -1,9 +1,6 @@
 package org.opentripplanner.inspector;
 
-import java.awt.Color;
-
-import org.opentripplanner.ext.greenrouting.GreenStreetEdge;
-import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.EdgeVertexRenderer;
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.EdgeVisualAttributes;
 import org.opentripplanner.inspector.EdgeVertexTileRenderer.VertexVisualAttributes;

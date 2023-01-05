@@ -5,6 +5,6 @@
     "fileName": "data/green.json",
 	"id": "id",
 	"score": "score",
-	"mappingType": "weighted"
+	"mappingType": "average"
   }
 }

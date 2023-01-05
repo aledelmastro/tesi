@@ -1,27 +1,28 @@
 package org.opentripplanner.ext.greenrouting;
 
-import static org.locationtech.jts.algorithm.RobustLineIntersector.COLLINEAR_INTERSECTION;
-import static org.locationtech.jts.algorithm.RobustLineIntersector.POINT_INTERSECTION;
 import static org.opentripplanner.util.logging.ThrottleLogger.throttle;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.util.URLs;
-import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.LineString;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -40,14 +41,15 @@ public class GreenRouting implements GraphBuilderModule {
      * log one message every 3 second.
      */
     private static final Logger GREEN_ROUTING_ERROR_LOG = throttle(LOG);
+
     private final GreenRoutingConfig config;
-    Map<Long, List<GreenSegment>> featuresWithId;
-    Map<Long, List<StreetEdge>> streetEdgesWithId;
+    Map<Long, List<GreenFeature>> featuresWithId;
+    Map<Long, List<GreenStreetEdge>> edgesWithId;
 
     public GreenRouting(GreenRoutingConfig config) {
         this.config = config;
         this.featuresWithId = new HashMap<>();
-        this.streetEdgesWithId = new HashMap<>();
+        this.edgesWithId = new HashMap<>();
     }
 
     @Override
@@ -58,41 +60,19 @@ public class GreenRouting implements GraphBuilderModule {
     ) {
         File dataFile = new File(config.getFileName());
 
-        if (dataFile.exists()) {
-            try {
-                Map<String, Object> params = new HashMap<>();
-                params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(dataFile));
-                DataStore ds = DataStoreFinder.getDataStore(params);
+        if (!dataFile.exists()) {return;}
 
-                // TODO ds.getTypeNames()[0] valutare se aggiungere il nome del file in config
-                var featureCollection = ds.getFeatureSource(ds.getTypeNames()[0]).getFeatures();
+        var featureCollection = getFeatureCollection(dataFile);
+        if(featureCollection.isPresent()) {
+            this.edgesWithId = getStreetEdges(graph);
 
-                //streetEdges = graph.getStreetEdges();
-                graph.getStreetEdges().forEach(se -> {
-                    streetEdgesWithId.computeIfAbsent(se.wayId, id -> new ArrayList<>());
-                    streetEdgesWithId.get(se.wayId).add(se);
-                });
-
-                try (SimpleFeatureIterator it = featureCollection.features()) {
-                    while (it.hasNext()) {
-                        SimpleFeature f = it.next();
-                        long id = Long.parseLong((String) f.getAttribute(config.getId()));
-                        double score = (Double) f.getAttribute(config.getScores());
-
-                        Geometry geometry = (LineString) f.getDefaultGeometryProperty().getValue();
-                        //var g = (Geometry) f.getDefaultGeometryProperty().getValue();
-                        var segment = new GreenSegment(id, score, geometry);
-                        addSegment(segment);
-                    }
-                }
-
-                if (config.fastMapping()) {fastMap();}
-
-                if (config.averageMapping()) {averageMap();}
+            try (SimpleFeatureIterator it = featureCollection.get().features()) {
+                while (it.hasNext()) {addFeature(parseFeature(it.next()));}
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            if (config.fastMapping()) {fastMap();}
+
+            if (config.weightedAverageMapping()) {weightedAverageMap();}
         }
     }
 
@@ -101,32 +81,28 @@ public class GreenRouting implements GraphBuilderModule {
         // Nothing
     }
 
-    public Map<StreetEdge, List<Double>> mapToClosestEdge(
-            Map<Long, List<GreenSegment>> featuresWithId,
-            Map<Long, List<StreetEdge>> streetEdgesWithId
+    public Map<StreetEdge, List<GreenFeature>> mapFeaturesToClosestEdge(
+            Map<Long, List<GreenFeature>> featuresWithId,
+            Map<Long, List<GreenStreetEdge>> streetEdgesWithId
     ) {
-        Map<StreetEdge, List<Double>> scoresForEdge = new HashMap<>();
+        Map<StreetEdge, List<GreenFeature>> scoresForEdge = new HashMap<>();
 
         for (var id : featuresWithId.keySet()) {
-            var edgesForID = streetEdgesWithId.get(id);
+            var edgesWithId = streetEdgesWithId.get(id);
             for (var feature : featuresWithId.get(id)) {
-                var minDistance = edgesForID.stream()
-                        .mapToDouble(edge -> getDistance(edge.getGeometry(), feature.geometry))
+                var minDistance = edgesWithId.stream()
+                        .mapToDouble(edge -> feature.getDistance(edge.getGeometry()))
                         .min()
-                        .getAsDouble();
+                        .orElse(-1);
 
-                var closestEdges = edgesForID.stream()
-                        .filter(streetEdge ->
-                                getDistance(streetEdge.getGeometry(), feature.geometry)
-                                        == minDistance)
+                var closestEdges = edgesWithId.stream()
+                        .filter(streetEdge -> feature.getDistance(streetEdge.getGeometry())
+                                == minDistance)
                         .collect(Collectors.toList());
 
-                for (StreetEdge edge: closestEdges) {
-                    if (edge instanceof GreenStreetEdge) {
-                        var gse = (GreenStreetEdge) edge;
-                        scoresForEdge.computeIfAbsent(gse, key -> new ArrayList<>());
-                        scoresForEdge.get(gse).add(feature.score);
-                    }
+                for (GreenStreetEdge edge : closestEdges) {
+                    scoresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
+                    scoresForEdge.get(edge).add(feature);
                 }
             }
         }
@@ -134,101 +110,102 @@ public class GreenRouting implements GraphBuilderModule {
         return scoresForEdge;
     }
 
-    // TODO move to utils
-    public Relation getRelation(LineSegment ls1, LineSegment ls2) {
-        RobustLineIntersector rli = new RobustLineIntersector();
-        rli.computeIntersection(
-                ls1.getCoordinate(0),
-                ls1.getCoordinate(1),
-                ls2.getCoordinate(0),
-                ls2.getCoordinate(1)
-        );
-
-        if (rli.getIntersectionNum() == COLLINEAR_INTERSECTION) {return Relation.OVERLAP;}
-
-        var dStart = ls1.distance(ls2.getCoordinate(0));
-        var dEnd = ls1.distance(ls2.getCoordinate(1));
-
-        if (rli.getIntersectionNum() == POINT_INTERSECTION) {
-            if (dStart == 0 || dEnd == 0) {return Relation.SEPARATED;}
-            else {return Relation.INTERSECT;}
-        }
-
-        return Relation.SEPARATED;
+    public List<GreenStreetEdge> greenStreetEdgesForID(long id) {
+        return Objects.requireNonNullElse(edgesWithId.get(id), Collections.emptyList());
     }
 
-    public double getDistance(Geometry g1, Geometry g2) {
-        if (!(g1 instanceof LineString) || !(g2 instanceof LineString)) {
-            throw new IllegalArgumentException("Geometry is not a line string.");
+    private void addFeature(GreenFeature feature) {
+        if (!this.featuresWithId.containsKey(feature.id)) {
+            this.featuresWithId.put(feature.id, new ArrayList<>());
         }
 
-        var segments = toLineSegments((LineString) g1);
-        var feature = toLineSegments((LineString) g2).get(0);
-
-        var relations = segments.stream()
-                .map(segment -> getRelation(segment, feature))
-                .collect(Collectors.toList());
-
-        if (relations.stream().anyMatch(r -> r == Relation.OVERLAP)) {return 0;}
-
-        if (relations.stream().anyMatch(r -> r == Relation.INTERSECT)) {return 0;}
-
-        return segments.stream()
-                .map(s -> s.midPoint().distance(feature.midPoint()))
-                .min(Double::compareTo)
-                .get();
-    }
-
-    public List<StreetEdge> getStreetEdgesForID(long id) {
-        return streetEdgesWithId.get(id);
-    }
-
-    private void addSegment(GreenSegment segment) {
-        if (!this.featuresWithId.containsKey(segment.id)) {
-            this.featuresWithId.put(segment.id, new ArrayList<>());
-        }
-
-        this.featuresWithId.get(segment.id).add(segment);
+        this.featuresWithId.get(feature.id).add(feature);
     }
 
     private void fastMap() {
         for (var id : featuresWithId.keySet()) {
-            var edgesForID = getStreetEdgesForID(id);
             var score = featuresWithId.get(id).get(0).score;
-            for (StreetEdge edge : edgesForID) {
-                if (edge instanceof GreenStreetEdge) {((GreenStreetEdge) edge).greenyness = score;}
-            }
+            var edgesForID = greenStreetEdgesForID(id);
+
+            for (GreenStreetEdge edge : edgesForID) {edge.greenyness = score;}
         }
     }
 
-    private void averageMap() {
-        Map<StreetEdge, List<Double>> scoresForEdge =
-                mapToClosestEdge(this.featuresWithId, this.streetEdgesWithId);
+    private void weightedAverageMap() {
+        Map<StreetEdge, List<GreenFeature>> closestFeatures =
+                mapFeaturesToClosestEdge(this.featuresWithId, this.edgesWithId);
 
-        for (StreetEdge edge : scoresForEdge.keySet()) {
-            ((GreenStreetEdge) edge).greenyness = scoresForEdge.get(edge).stream()
-                    .mapToDouble(score -> score)
+        for (StreetEdge edge : closestFeatures.keySet()) {
+            var totalLength = closestFeatures.get(edge).stream()
+                    .mapToDouble(segment -> segment.geometry.getLength())
+                    .sum();
+
+            closestFeatures.get(edge).stream()
+                    .mapToDouble(segment -> segment.score * segment.geometry.getLength())
                     .average()
-                    .getAsDouble();
+                    .ifPresent(v -> ((GreenStreetEdge) edge).greenyness = v / totalLength);
         }
     }
 
-    // TODO move to utils
-    private List<LineSegment> toLineSegments(LineString ls) {
-        List<LineSegment> segments = new ArrayList<>();
-        var points = ls.getCoordinates();
+    /**
+     * Extracts the values from a SimpleFeature into a GreenFeature performing all the required type
+     * casts.
+     *
+     * @param feature a generic feature as described by {@link SimpleFeature}.
+     * @return an instance of GreenFeature populated with the values extracted from the argument.
+     */
+    private GreenFeature parseFeature(SimpleFeature feature) {
+        long id = Long.parseLong((String) feature.getAttribute(config.getId()));
+        double score = (Double) feature.getAttribute(config.getScores());
 
-        for (int i = 1; i < points.length; i++) {
-            segments.add(new LineSegment(points[i - 1], points[i]));
-        }
-
-        return segments;
+        Geometry geometry = (LineString) feature.getDefaultGeometryProperty().getValue();
+        return new GreenFeature(id, score, geometry);
     }
 
-    // TODO move to utils
-    private enum Relation {
-        OVERLAP,
-        INTERSECT,
-        SEPARATED
+    /**
+     * Finds all the instances of GreenStreetEdge in the graph and groups them based on their
+     * wayId.
+     *
+     * @param graph the graph built from OSM data.
+     * @return a key-value map where the key is the wayId and the value is a list of all the
+     * corresponding GreenStreetEdge.
+     * @see GreenStreetEdge
+     */
+    private Map<Long, List<GreenStreetEdge>> getStreetEdges(Graph graph) {
+        Map<Long, List<GreenStreetEdge>> edgesWithId = new HashMap<>();
+
+        graph.getStreetEdges().forEach(se -> {
+            if (se instanceof GreenStreetEdge) {
+                edgesWithId.computeIfAbsent(se.wayId, id -> new ArrayList<>());
+                edgesWithId.get(se.wayId).add((GreenStreetEdge) se);
+            }
+        });
+
+        return edgesWithId;
+    }
+
+    /**
+     * Loads a feature collection from a designated geojson file.
+     * @param dataFile the file containing the features.
+     * @return an empty optional if a suitable loader could not be found or
+     * an access error occurred. Otherwise, the optional contains a feature
+     * collection.
+     */
+    private Optional<SimpleFeatureCollection> getFeatureCollection(File dataFile) {
+        Map<String, Object> params = new HashMap<>();
+        params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(dataFile));
+        DataStore ds = null;
+        Optional<SimpleFeatureCollection> featureCollection = Optional.empty();
+        try {
+            ds = DataStoreFinder.getDataStore(params);
+            featureCollection =
+                    Optional.ofNullable(ds.getFeatureSource(ds.getTypeNames()[0]).getFeatures());
+        }
+        catch (IOException e) {
+            // TODO eccezione file!!!
+            e.printStackTrace();
+        }
+
+        return featureCollection;
     }
 }

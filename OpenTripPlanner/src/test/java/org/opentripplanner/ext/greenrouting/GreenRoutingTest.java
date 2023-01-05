@@ -9,17 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.mockito.Mockito;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
-import org.opentripplanner.routing.vertextype.StreetVertex;
 
 public class GreenRoutingTest {
-
     private GreenRouting getDefaultGreenRouting() {
         GreenRoutingConfig grc = Mockito.mock(GreenRoutingConfig.class);
         return new GreenRouting(grc);
@@ -82,6 +82,10 @@ public class GreenRoutingTest {
         });
     }
 
+    private GreenFeature greenFeature(Geometry g) {
+        return new GreenFeature(0,0,g);
+    }
+
     private GreenStreetEdge greenStreetEdge(LineString geometry, long id) {
         var v1 = new IntersectionVertex(null, null, geometry.getCoordinates()[0].getX(), geometry.getCoordinates()[0].getY());
         var v2 = new IntersectionVertex(null, null, geometry.getCoordinates()[1].getX(), geometry.getCoordinates()[1].getY());
@@ -92,32 +96,30 @@ public class GreenRoutingTest {
 
     @Test
     public void getDistanceTest_OneOneTheOther() {
-        var gr = getDefaultGreenRouting();
         var ls = getLineStringsOneOnTheOther();
+        var feature = greenFeature(ls[0]);
 
-        assertEquals(0, gr.getDistance(ls[0], ls[1]), 0);
+        assertEquals(0, feature.getDistance(ls[1]), 0);
     }
 
     @Test
     public void getDistanceTest_Overlap() {
-        var gr = getDefaultGreenRouting();
         var ls = getOverlappedLineStrings();
+        var feature = greenFeature(ls[0]);
 
-        assertEquals(0, gr.getDistance(ls[0], ls[1]), 0);
+        assertEquals(0, feature.getDistance(ls[1]), 0);
     }
 
     @Test
     public void getDistanceTest_InternalIntersection() {
-        var gr = getDefaultGreenRouting();
         var ls = getIncidentLineStrings();
+        var feature = greenFeature(ls[0]);
 
-        assertEquals(0, gr.getDistance(ls[0], ls[1]), 0);
+        assertEquals(0, feature.getDistance(ls[1]), 0);
     }
 
     @Test
     public void getDistanceTest_ExtremityIntersection() {
-        var gr = getDefaultGreenRouting();
-
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[] {
@@ -130,20 +132,18 @@ public class GreenRoutingTest {
                 new Coordinate(1,-1)}
         );
 
-        var v = gr.getDistance(ls1, ls2);
-        assertTrue(gr.getDistance(ls1, ls2) > 0);
+        var feature = greenFeature(ls1);
+        assertTrue(feature.getDistance(ls2) > 0);
     }
 
     @Test
     public void getDistanceTest_ArgsDifferentThanLineString() {
-        var gr = getDefaultGreenRouting();
-
         var geometryFactory = new GeometryFactory();
 
-        Point p1 = geometryFactory.createPoint();
-        LineString ls2 = geometryFactory.createLineString();
+        Point p = geometryFactory.createPoint();
+        var feature = greenFeature(geometryFactory.createLineString());
 
-        assertThrows(IllegalArgumentException.class, () -> gr.getDistance(p1, ls2));
+        assertThrows(IllegalArgumentException.class, () -> feature.getDistance(p));
     }
 
     @Test
@@ -158,22 +158,22 @@ public class GreenRoutingTest {
         var doesntTouchLs1 = lineString(1,1,5,2);
 
         GreenStreetEdge e1 = greenStreetEdge(ls1, id);
-        GreenSegment gs = new GreenSegment(id, score, incidentWithLs1);
-        GreenSegment gs2 = new GreenSegment(id, score, doesntTouchLs1);
+        GreenFeature gs = new GreenFeature(id, score, incidentWithLs1);
+        GreenFeature gs2 = new GreenFeature(id, score, doesntTouchLs1);
 
         var ls2 = lineString(5,0,8,0);
         var closerToS2 = lineString(4,-1,8,-1);
 
         GreenStreetEdge e2 = greenStreetEdge(ls2,id);
-        GreenSegment gs3 = new GreenSegment(id,score2,closerToS2);
+        GreenFeature gs3 = new GreenFeature(id,score2,closerToS2);
 
-        var featuresWithId = new HashMap<Long, List<GreenSegment>>();
+        var featuresWithId = new HashMap<Long, List<GreenFeature>>();
         featuresWithId.put(id, List.of(gs, gs2, gs3));
 
-        var streetEdgesWithId = new HashMap<Long, List<StreetEdge>>();
+        var streetEdgesWithId = new HashMap<Long, List<GreenStreetEdge>>();
         streetEdgesWithId.put(id, List.of(e1, e2));
 
-        var mapping = gr.mapToClosestEdge(
+        var mapping = gr.mapFeaturesToClosestEdge(
                 featuresWithId,
                 streetEdgesWithId
         );

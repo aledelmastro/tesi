@@ -1,6 +1,8 @@
 package org.opentripplanner.ext.greenrouting;
 
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetWithElevationEdge;
 import org.opentripplanner.graph_builder.services.DefaultStreetEdgeFactory;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;

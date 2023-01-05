@@ -35,7 +35,7 @@ public class GreenRoutingConfig {
         return this.mode == GreenMappingMode.FAST;
     }
 
-    public boolean averageMapping() {
+    public boolean weightedAverageMapping() {
         return this.mode == GreenMappingMode.AVERAGE;
     }
 

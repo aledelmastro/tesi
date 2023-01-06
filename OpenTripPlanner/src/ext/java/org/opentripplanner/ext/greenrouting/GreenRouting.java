@@ -81,7 +81,16 @@ public class GreenRouting implements GraphBuilderModule {
         // Nothing
     }
 
-    public Map<StreetEdge, List<GreenFeature>> mapFeaturesToClosestEdge(
+    /**
+     * Maps each feature to its closest street edge.
+     * @param featuresWithId a map in which the key is the wayId and the value is a list of the
+     *                       features with that id.
+     * @param streetEdgesWithId a map in which the key is the wayId and the value is a list of the
+     *                          street edges with that id.
+     * @return a map in which the key is a street edge and the value is a list of features
+     * whose nearest edge is the key.
+     */
+    public Map<StreetEdge, List<GreenFeature>> mapFeaturesToNearestEdge(
             Map<Long, List<GreenFeature>> featuresWithId,
             Map<Long, List<GreenStreetEdge>> streetEdgesWithId
     ) {
@@ -95,12 +104,12 @@ public class GreenRouting implements GraphBuilderModule {
                         .min()
                         .orElse(-1);
 
-                var closestEdges = edgesWithId.stream()
+                var nearestEdges = edgesWithId.stream()
                         .filter(streetEdge -> feature.getDistance(streetEdge.getGeometry())
                                 == minDistance)
                         .collect(Collectors.toList());
 
-                for (GreenStreetEdge edge : closestEdges) {
+                for (GreenStreetEdge edge : nearestEdges) {
                     scoresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
                     scoresForEdge.get(edge).add(feature);
                 }
@@ -110,10 +119,19 @@ public class GreenRouting implements GraphBuilderModule {
         return scoresForEdge;
     }
 
+    /**
+     * Returns all the instances of {@link GreenStreetEdge} with the specified id.
+     * @param id the id for the edges.
+     * @return a list of all the edges with the specified id.
+     */
     public List<GreenStreetEdge> greenStreetEdgesForID(long id) {
         return Objects.requireNonNullElse(edgesWithId.get(id), Collections.emptyList());
     }
 
+    /**
+     * Adds a feature to the internal map that stores the features grouped by their id.
+     * @param feature the feature to be added.
+     */
     private void addFeature(GreenFeature feature) {
         if (!this.featuresWithId.containsKey(feature.id)) {
             this.featuresWithId.put(feature.id, new ArrayList<>());
@@ -122,6 +140,13 @@ public class GreenRouting implements GraphBuilderModule {
         this.featuresWithId.get(feature.id).add(feature);
     }
 
+    /**
+     * For each id, sets the score of the first corresponding feature to the first
+     * corresponding edge. This approach can be used when data provide a single feature
+     * (thus a single score) for each id.
+     *
+     * It's the fastest kind of mapping because it simply iterates over the ids one time.
+     */
     private void fastMap() {
         for (var id : featuresWithId.keySet()) {
             var score = featuresWithId.get(id).get(0).score;
@@ -131,9 +156,17 @@ public class GreenRouting implements GraphBuilderModule {
         }
     }
 
+    /**
+     * Groups the features by their nearest edge and performs
+     * a weighted average of their scores based on their length.
+     * The calculated value is then set as a "green score" for the edge.
+     *
+     * This option allows for multiple features (thus multiple scores) for
+     * a single id.
+     */
     private void weightedAverageMap() {
         Map<StreetEdge, List<GreenFeature>> closestFeatures =
-                mapFeaturesToClosestEdge(this.featuresWithId, this.edgesWithId);
+                mapFeaturesToNearestEdge(this.featuresWithId, this.edgesWithId);
 
         for (StreetEdge edge : closestFeatures.keySet()) {
             var totalLength = closestFeatures.get(edge).stream()

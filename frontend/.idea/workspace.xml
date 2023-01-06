@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/frontend.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Ripulito progetto intellij">
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/data-file.nc4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/InputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/InputWidget.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +29,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/turf-master/turf-master" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -55,7 +54,17 @@
       <option name="presentableId" value="Default" />
       <updated>1671451049612</updated>
       <workItem from="1671451049833" duration="682000" />
+      <workItem from="1671806362648" duration="310000" />
+      <workItem from="1671897057333" duration="62000" />
     </task>
+    <task id="LOCAL-00001" summary="Ripulito progetto intellij">
+      <created>1671806660393</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1671806660393</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -71,5 +80,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="[UI] Ripulito il progetto" />
+    <MESSAGE value="Ripulito progetto intellij" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ripulito progetto intellij" />
   </component>
 </project>

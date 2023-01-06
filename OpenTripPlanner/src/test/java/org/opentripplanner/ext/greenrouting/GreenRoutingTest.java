@@ -16,7 +16,6 @@ import org.locationtech.jts.geom.Point;
 import org.mockito.Mockito;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
-import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 
 public class GreenRoutingTest {
@@ -173,7 +172,7 @@ public class GreenRoutingTest {
         var streetEdgesWithId = new HashMap<Long, List<GreenStreetEdge>>();
         streetEdgesWithId.put(id, List.of(e1, e2));
 
-        var mapping = gr.mapFeaturesToClosestEdge(
+        var mapping = gr.mapFeaturesToNearestEdge(
                 featuresWithId,
                 streetEdgesWithId
         );

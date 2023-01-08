@@ -124,7 +124,7 @@ public class GreenRouting implements GraphBuilderModule {
      * @param id the id for the edges.
      * @return a list of all the edges with the specified id.
      */
-    public List<GreenStreetEdge> greenStreetEdgesForID(long id) {
+    private List<GreenStreetEdge> greenStreetEdgesForID(long id) {
         return Objects.requireNonNullElse(edgesWithId.get(id), Collections.emptyList());
     }
 
@@ -173,10 +173,9 @@ public class GreenRouting implements GraphBuilderModule {
                     .mapToDouble(segment -> segment.geometry.getLength())
                     .sum();
 
-            closestFeatures.get(edge).stream()
+            ((GreenStreetEdge) edge).greenyness = closestFeatures.get(edge).stream()
                     .mapToDouble(segment -> segment.score * segment.geometry.getLength())
-                    .average()
-                    .ifPresent(v -> ((GreenStreetEdge) edge).greenyness = v / totalLength);
+                    .sum() / totalLength;
         }
     }
 

@@ -25,6 +25,7 @@ import org.opentripplanner.common.geometry.MapTile;
 import org.opentripplanner.common.geometry.WebMercatorTile;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.inspector.TileRenderer;
+import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.standalone.server.Router;
 
@@ -119,8 +120,21 @@ public class GraphInspectorTileResource {
     public String getGeoJson(@PathParam("layer") String layer) {
         var router = otpServer.getRouter();
         var graph = router.graph;
+        FeatureCollection collection;
 
-        var feat = graph
+        if (layer.equals("green"))
+            collection = getGreenEdgesAsFeatures();
+        else
+            collection = getOtherThanGreenEdges();
+
+        return collection.toJson();
+    }
+
+    private FeatureCollection getGreenEdgesAsFeatures() {
+        var router = otpServer.getRouter();
+        var graph = router.graph;
+
+        var features = graph
                 .getStreetIndex()
                 .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
                 .stream()
@@ -128,7 +142,22 @@ public class GraphInspectorTileResource {
                 .map(e -> toFeature(e.getGeometry(), ((GreenStreetEdge) e).greenyness))
                 .collect(Collectors.toList());
 
-        return FeatureCollection.fromFeatures(feat).toJson();
+        return FeatureCollection.fromFeatures(features);
+    }
+
+    private FeatureCollection getOtherThanGreenEdges() {
+        var router = otpServer.getRouter();
+        var graph = router.graph;
+
+        var features = graph
+                .getStreetIndex()
+                .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
+                .stream()
+                .filter(e -> !(e instanceof GreenStreetEdge) && e instanceof StreetEdge)
+                .map(e -> toFeature(e.getGeometry(), 0))
+                .collect(Collectors.toList());
+
+        return FeatureCollection.fromFeatures(features);
     }
 
     private Feature toFeature(org.locationtech.jts.geom.LineString ls, double score) {

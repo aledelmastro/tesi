@@ -1,24 +1,32 @@
 package org.opentripplanner.api.resource;
 
-import org.geotools.geometry.Envelope2D;
-import org.opentripplanner.common.geometry.WebMercatorTile;
-import org.opentripplanner.common.geometry.MapTile;
-import org.opentripplanner.api.parameter.MIMEImageFormat;
-import org.opentripplanner.inspector.TileRenderer;
-import org.opentripplanner.standalone.server.OTPServer;
-import org.opentripplanner.standalone.server.Router;
-
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import org.geotools.geometry.Envelope2D;
+import org.locationtech.jts.geom.Envelope;
+import org.opentripplanner.api.parameter.MIMEImageFormat;
+import org.opentripplanner.common.geometry.MapTile;
+import org.opentripplanner.common.geometry.WebMercatorTile;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
+import org.opentripplanner.inspector.TileRenderer;
+import org.opentripplanner.standalone.server.OTPServer;
+import org.opentripplanner.standalone.server.Router;
 
 /**
  * Slippy map tile API for rendering various graph information for inspection/debugging purpose
@@ -94,4 +102,43 @@ public class GraphInspectorTileResource {
         return layersList;
     }
 
+    @QueryParam("latTl")
+    double latTl;
+
+    @QueryParam("lngTl")
+    double lngTl;
+
+    @QueryParam("latBr")
+    double latBr;
+
+    @QueryParam("lngBr")
+    double lngBr;
+
+    @GET @Path("/json/{layer}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getGeoJson(@PathParam("layer") String layer) {
+        var router = otpServer.getRouter();
+        var graph = router.graph;
+
+        var feat = graph
+                .getStreetIndex()
+                .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
+                .stream()
+                .filter(e -> e instanceof GreenStreetEdge)
+                .map(e -> toFeature(e.getGeometry(), ((GreenStreetEdge) e).greenyness))
+                .collect(Collectors.toList());
+
+        return FeatureCollection.fromFeatures(feat).toJson();
+    }
+
+    private Feature toFeature(org.locationtech.jts.geom.LineString ls, double score) {
+        var points = Arrays.stream(ls.getCoordinates())
+                .map(p -> Point.fromLngLat(p.x, p.y))
+                .collect(Collectors.toList());
+
+        var feature = Feature.fromGeometry(LineString.fromLngLats(points));
+        feature.addNumberProperty("score", score);
+
+        return feature;
+    }
 }

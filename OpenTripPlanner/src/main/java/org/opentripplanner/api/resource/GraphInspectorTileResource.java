@@ -154,20 +154,24 @@ public class GraphInspectorTileResource {
                 .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
                 .stream()
                 .filter(e -> !(e instanceof GreenStreetEdge) && e instanceof StreetEdge)
-                .map(e -> toFeature(e.getGeometry(), 0))
+                .map(e -> toFeature(e.getGeometry()))
                 .collect(Collectors.toList());
 
         return FeatureCollection.fromFeatures(features);
     }
 
     private Feature toFeature(org.locationtech.jts.geom.LineString ls, double score) {
+        var feature = this.toFeature(ls);
+        feature.addNumberProperty("score", score);
+
+        return feature;
+    }
+
+    private Feature toFeature(org.locationtech.jts.geom.LineString ls) {
         var points = Arrays.stream(ls.getCoordinates())
                 .map(p -> Point.fromLngLat(p.x, p.y))
                 .collect(Collectors.toList());
 
-        var feature = Feature.fromGeometry(LineString.fromLngLats(points));
-        feature.addNumberProperty("score", score);
-
-        return feature;
+        return Feature.fromGeometry(LineString.fromLngLats(points));
     }
 }

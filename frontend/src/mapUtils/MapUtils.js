@@ -108,6 +108,54 @@ class MapUtils {
         });
     }
 
+    addGeoJson (geojson) {
+        console.log(geojson['features']);
+        if (this.map.getLayer('geo')) this.map.removeLayer('geo');
+        if (this.map.getLayer('symbols')) this.map.removeLayer('symbols');
+        if (this.map.getSource('geo')) this.map.removeSource("geo");
+        this.map.addSource("geo", {
+            'type': 'geojson',
+            'data': geojson
+        });
+/*
+        this.addLayer("geo");
+*/
+
+        this.map.addLayer({
+            'id': 'geo',
+            'type': 'line',
+            'source': 'geo',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': [
+                    'case',
+                    ['!', ['has', 'score']], '#F6B829',
+                    ['==', ['get', 'score'], 0], '#efefef',
+                    ['>=', ['get', 'score'], 20], '#43ff64',
+                    ['<=', ['get', 'score'], 5], '#00efff',
+                    /* other */ '#ff0000'
+                ],
+                'line-opacity': 0.4,
+                'line-width': 8
+            }
+        });
+
+        this.map.addLayer({
+            "id": "symbols",
+            "type": "symbol",
+            "source": "geo",
+            "layout": {
+                "symbol-placement": "line",
+                "text-font": ["Open Sans Regular"],
+                "text-field": '{score}',
+                "text-size": 16
+            }
+        });
+    }
+
     addGeoJsonSource (name) {
         this.map.addSource(name, {
             'type': 'geojson',

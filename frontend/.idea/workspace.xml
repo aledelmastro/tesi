@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Ripulito progetto intellij">
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/data-file.nc4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +31,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/Downloads/turf-master/turf-master" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="ts.external.directory.path" value="C:\Users\Alessandro\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6461.79\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -56,6 +57,7 @@
       <workItem from="1671451049833" duration="682000" />
       <workItem from="1671806362648" duration="310000" />
       <workItem from="1671897057333" duration="62000" />
+      <workItem from="1673264441619" duration="14194000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>

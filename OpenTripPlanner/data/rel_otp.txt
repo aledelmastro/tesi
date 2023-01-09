@@ -1,0 +1,28 @@
+name
+ref
+layer
+level
+
+relation
+	railway
+	public_transport
+	type
+	route
+	network
+	except
+	restrition
+	// Restrictions
+	day_on
+	day_off
+	hour_on
+	hour_off
+	
+way
+	foot
+	bicycle
+	highway
+	railway
+	maxspeed
+	motor_vehicle
+	access
+	cycleway

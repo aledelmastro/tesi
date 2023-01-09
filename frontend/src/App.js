@@ -4,6 +4,7 @@ import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-load
 import IOTile from "./components/IOTile";
 import {MapUtils} from "./mapUtils/MapUtils";
 import ContextMenu from "./components/ContextMenu";
+import {requestInspector} from "./calls/calls";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYWxlLWRlbG1hc3RybyIsImEiOiJjbGFzOWZnOWoyMGY3M3BxdjE1d29lcnV4In0.0X1pCcxD7RtDiAOc_XFjwQ ';
 
@@ -133,6 +134,32 @@ function App() {
             left={popup.x}
             top={popup.y}
         />
+        <div style={{
+          position: "absolute",
+          right: 10,
+          top: 10,
+          backgroundColor: "green",
+          zIndex: 100
+        }}
+        id={"inspector"}
+        onClick={async () => {
+          const bounds = map.current.getBounds();
+          const r = await requestInspector(bounds.getEast(), bounds.getSouth(), bounds.getWest(), bounds.getNorth(), true);
+          mapUtils.current.addGeoJson(r);
+        }}>Green</div>
+        <div style={{
+          position: "absolute",
+          right: 100,
+          top: 10,
+          backgroundColor: "red",
+          zIndex: 100
+        }}
+             id={"inspector_"}
+             onClick={async () => {
+               const bounds = map.current.getBounds();
+               const r = await requestInspector(bounds.getEast(), bounds.getSouth(), bounds.getWest(), bounds.getNorth(), false);
+               mapUtils.current.addGeoJson(r);
+             }}>Non green</div>
         <div ref={mapContainer} className="map-container" />
       </div>
   );

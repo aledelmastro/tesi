@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -17,7 +19,6 @@ import org.mockito.Mockito;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig.GreenMappingMode;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
-import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.SimpleVertex;
@@ -53,16 +54,12 @@ public class GreenRoutingTest {
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(0, 0),
-                        new Coordinate(5, 0)
-                }
-        );
+                new Coordinate(0, 0), new Coordinate(5, 0)
+        });
 
         LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(0, 0),
-                        new Coordinate(1, -1)
-                }
-        );
+                new Coordinate(0, 0), new Coordinate(1, -1)
+        });
 
         var feature = greenFeature(ls1);
         assertTrue(feature.getDistance(ls2) > 0);
@@ -81,8 +78,6 @@ public class GreenRoutingTest {
     @Test
     public void mapToClosestEdgeTest() {
         var gr = getDefaultGreenRouting();
-        var score = 10;
-        var score2 = 5;
         var id = 1L;
 
         var ls1 = lineString(0, 0, 5, 0);
@@ -90,14 +85,14 @@ public class GreenRoutingTest {
         var doesntTouchLs1 = lineString(1, 1, 5, 2);
 
         GreenStreetEdge e1 = greenStreetEdge(ls1, id);
-        GreenFeature gs = new GreenFeature(id, score, incidentWithLs1);
-        GreenFeature gs2 = new GreenFeature(id, score, doesntTouchLs1);
+        GreenFeature gs = new GreenFeature(id, Map.of(), incidentWithLs1, 0);
+        GreenFeature gs2 = new GreenFeature(id, Map.of(), doesntTouchLs1, 0);
 
         var ls2 = lineString(5, 0, 8, 0);
         var closerToS2 = lineString(4, -1, 8, -1);
 
         GreenStreetEdge e2 = greenStreetEdge(ls2, id);
-        GreenFeature gs3 = new GreenFeature(id, score2, closerToS2);
+        GreenFeature gs3 = new GreenFeature(id, Map.of(), closerToS2, 0);
 
         var featuresWithId = new HashMap<Long, List<GreenFeature>>();
         featuresWithId.put(id, List.of(gs, gs2, gs3));
@@ -117,26 +112,23 @@ public class GreenRoutingTest {
     @Test
     public void averageMapTest() {
         var gr = new GreenRouting(
-                new GreenRoutingConfig("test/green-test/green.json", "id", "score",
-                        GreenMappingMode.AVERAGE
+                new GreenRoutingConfig("test/green-test/green.json", "id",
+                        Set.of("score1", "score2"),
+                        GreenMappingMode.AVERAGE, "score1+score2"
                 ));
         var id = 1L;
 
         Graph g = new Graph();
 
-        GreenStreetEdge s = new GreenStreetEdge(
-                new SimpleVertex(g, "v1", 0, 0),
+        GreenStreetEdge s = new GreenStreetEdge(new SimpleVertex(g, "v1", 0, 0),
                 new SimpleVertex(g, "v2", 5, 0),
-                lineString(0, 0, 5, 0),
-                null,
-                null,
-                true
+                lineString(0, 0, 5, 0), null, null, true
         );
 
         s.wayId = id;
         gr.buildGraph(g, null, null);
 
-        assertEquals(s.greenyness, 8, 0);
+        assertEquals(s.greenyness, 19, 0);
     }
 
     private GreenRouting getDefaultGreenRouting() {
@@ -148,16 +140,12 @@ public class GreenRoutingTest {
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(0, 0),
-                        new Coordinate(5, 0)
-                }
-        );
+                new Coordinate(0, 0), new Coordinate(5, 0)
+        });
 
         LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(1, 1),
-                        new Coordinate(1, -1)
-                }
-        );
+                new Coordinate(1, 1), new Coordinate(1, -1)
+        });
 
         return new LineString[]{ls1, ls2};
     }
@@ -166,16 +154,12 @@ public class GreenRoutingTest {
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(0, 0),
-                        new Coordinate(5, 0)
-                }
-        );
+                new Coordinate(0, 0), new Coordinate(5, 0)
+        });
 
         LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(1, 0),
-                        new Coordinate(4, 0)
-                }
-        );
+                new Coordinate(1, 0), new Coordinate(4, 0)
+        });
 
         return new LineString[]{ls1, ls2};
     }
@@ -184,16 +168,12 @@ public class GreenRoutingTest {
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(0, 0),
-                        new Coordinate(5, 0)
-                }
-        );
+                new Coordinate(0, 0), new Coordinate(5, 0)
+        });
 
         LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                        new Coordinate(1, 0),
-                        new Coordinate(4, 0)
-                }
-        );
+                new Coordinate(1, 0), new Coordinate(4, 0)
+        });
 
         return new LineString[]{ls1, ls2};
     }
@@ -202,13 +182,12 @@ public class GreenRoutingTest {
         var gf = new GeometryFactory();
 
         return gf.createLineString(new Coordinate[]{
-                new Coordinate(x1, y1),
-                new Coordinate(x2, y2)
+                new Coordinate(x1, y1), new Coordinate(x2, y2)
         });
     }
 
     private GreenFeature greenFeature(Geometry g) {
-        return new GreenFeature(0, 0, g);
+        return new GreenFeature(0, Collections.emptyMap(), g, 0);
     }
 
     private GreenStreetEdge greenStreetEdge(LineString geometry, long id) {

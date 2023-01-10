@@ -174,7 +174,7 @@ public class GreenRouting implements GraphBuilderModule {
                     .sum();
 
             ((GreenStreetEdge) edge).greenyness = closestFeatures.get(edge).stream()
-                    .mapToDouble(segment -> segment.score * segment.geometry.getLength())
+                    .mapToDouble(feature -> feature.score * feature.geometry.getLength())
                     .sum() / totalLength;
         }
     }
@@ -187,11 +187,18 @@ public class GreenRouting implements GraphBuilderModule {
      * @return an instance of GreenFeature populated with the values extracted from the argument.
      */
     private GreenFeature parseFeature(SimpleFeature feature) {
-        long id = Long.parseLong((String) feature.getAttribute(config.getId()));
-        double score = (Double) feature.getAttribute(config.getScores());
+        var id = Long.parseLong((String) feature.getAttribute(config.getId()));
+        var expression = config.getExpression();
+
+        var variables = new HashMap<String, Double>();
+        config.getVariables().forEach(variable -> {
+            variables.put(variable, (Double) feature.getAttribute(variable));
+            expression.setVariable(variable, (Double) feature.getAttribute(variable));
+        });
+        var score = expression.evaluate();
 
         Geometry geometry = (LineString) feature.getDefaultGeometryProperty().getValue();
-        return new GreenFeature(id, score, geometry);
+        return new GreenFeature(id, variables, geometry, score);
     }
 
     /**

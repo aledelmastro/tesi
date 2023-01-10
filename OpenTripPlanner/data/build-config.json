@@ -4,7 +4,8 @@
   {
     "fileName": "data/green.json",
 	"id": "id",
-	"score": "score",
+	"scores": ["score", "prova"],
+	"formula": "score",
 	"mappingType": "average"
   }
 }

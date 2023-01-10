@@ -1,30 +1,43 @@
 package org.opentripplanner.ext.greenrouting.configuration;
 
+import java.util.Set;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
+import org.opentripplanner.ext.greenrouting.GreenFeature;
+
 public class GreenRoutingConfig {
-    public enum GreenMappingMode{
-        FAST,
-        AVERAGE,
-        FIT_DATA_SEGMENTS
-    };
 
     private final String fileName;
     private final String id;
-    private final String scores;
+    private final Set<String> variables;
     private final GreenMappingMode mode;
+    private final Expression expression;
 
-    public GreenRoutingConfig(String fileName, String id, String scores, GreenMappingMode mode) {
+    public GreenRoutingConfig(
+            String fileName,
+            String id,
+            Set<String> variables,
+            GreenMappingMode mode,
+            String formula
+    ) {
         this.fileName = fileName;
         this.id = id;
-        this.scores = scores;
+        this.variables = variables;
         this.mode = mode;
+
+        this.expression = new ExpressionBuilder(formula).variables(variables).build();
+    }
+
+    public Expression getExpression() {
+        return expression;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getScores() {
-        return scores;
+    public Set<String> getVariables() {
+        return variables;
     }
 
     public String getFileName() {
@@ -41,6 +54,12 @@ public class GreenRoutingConfig {
 
     public boolean fitDataSegmentsMapping() {
         return this.mode == GreenMappingMode.FIT_DATA_SEGMENTS;
+    }
+
+    public enum GreenMappingMode {
+        FAST,
+        AVERAGE,
+        FIT_DATA_SEGMENTS
     }
 
 }

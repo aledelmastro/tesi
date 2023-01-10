@@ -5,6 +5,7 @@ import static org.locationtech.jts.algorithm.LineIntersector.POINT_INTERSECTION;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Geometry;
@@ -13,18 +14,22 @@ import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.ext.greenrouting.utils.Relation;
 
 public class GreenFeature {
+
     long id;
     double score;
+    Map<String, Double> variables;
     Geometry geometry;
 
-    GreenFeature(long id, double score, Geometry geometry) {
+    GreenFeature(long id, Map<String, Double> variables, Geometry geometry, double score) {
         this.id = id;
-        this.score = score;
+        this.variables = variables;
         this.geometry = geometry;
+        this.score = score;
     }
 
     /**
      * Computes the kind of relation that exists among two line segments.
+     *
      * @param ls1 the first line segment.
      * @param ls2 the second line segment-
      * @return a value that describes the relation.
@@ -52,11 +57,11 @@ public class GreenFeature {
     }
 
     /**
-     * Calculates the distance between the feature and another shape in terms
-     * of the relation between their geometries.
+     * Calculates the distance between the feature and another shape in terms of the relation
+     * between their geometries.
+     *
      * @param g1 the geometry of the shape from which the distance is computed.
-     * @return a value indicating the minimum distance between this feature and
-     * the shape.
+     * @return a value indicating the minimum distance between this feature and the shape.
      */
     public double getDistance(Geometry g1) {
         Geometry g2 = this.geometry;
@@ -83,6 +88,7 @@ public class GreenFeature {
 
     /**
      * Breaks a line into its segments.
+     *
      * @param ls the line.
      * @return a list of the segments that make up the line.
      */

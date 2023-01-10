@@ -4,9 +4,10 @@
     {
       "type": "Feature",
       "properties": {
-		"id": "1",
-		"score": 10.0
-	  },
+        "id": "1",
+        "score1": 10.0,
+        "score2": 5.0
+      },
       "geometry": {
         "coordinates": [
           [
@@ -21,12 +22,13 @@
         "type": "LineString"
       }
     },
-	{
+    {
       "type": "Feature",
       "properties": {
-		"id": "1",
-		"score": 5.0
-	  },
+        "id": "1",
+        "score1": 5.0,
+        "score2": 20.0
+      },
       "geometry": {
         "coordinates": [
           [

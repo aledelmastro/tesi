@@ -1,5 +1,6 @@
 package org.opentripplanner.ext.greenrouting;
 
+import static org.opentripplanner.util.ProgressTracker.track;
 import static org.opentripplanner.util.logging.ThrottleLogger.throttle;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.util.ProgressTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,38 +43,56 @@ public class GreenRouting implements GraphBuilderModule {
      * log one message every 3 second.
      */
     private static final Logger GREEN_ROUTING_ERROR_LOG = throttle(LOG);
-
     private final GreenRoutingConfig config;
+    private final int nodeMapped;
     Map<Long, List<GreenFeature>> featuresWithId;
     Map<Long, List<GreenStreetEdge>> edgesWithId;
+    private ProgressTracker progressTracker;
 
     public GreenRouting(GreenRoutingConfig config) {
         this.config = config;
         this.featuresWithId = new HashMap<>();
         this.edgesWithId = new HashMap<>();
+        this.nodeMapped = 0;
     }
 
     @Override
     public void buildGraph(
-            Graph graph,
-            HashMap<Class<?>, Object> extra,
-            DataImportIssueStore issueStore
+            Graph graph, HashMap<Class<?>, Object> extra, DataImportIssueStore issueStore
     ) {
         File dataFile = new File(config.getFileName());
 
-        if (!dataFile.exists()) {return;}
+        if (!dataFile.exists()) {
+            LOG.error(config.getFileName() + " does not exist.");
+            return;
+        }
+
+        var nStreetEdges = graph.getEdgesOfType(StreetEdge.class).size();
+        var nGreenEdges = graph.getEdgesOfType(GreenStreetEdge.class).size();
+        int coverage = nStreetEdges != 0 ? (int)(nGreenEdges / (float)nStreetEdges * 100) : 0;
+
+        LOG.info("Green edges are " + nGreenEdges + " (" + coverage + "% of the total).");
 
         var featureCollection = getFeatureCollection(dataFile);
-        if(featureCollection.isPresent()) {
+        if (featureCollection.isPresent()) {
             this.edgesWithId = getStreetEdges(graph);
 
+            LOG.info("Collecting features...");
+            var nFeatures = 0;
             try (SimpleFeatureIterator it = featureCollection.get().features()) {
-                while (it.hasNext()) {addFeature(parseFeature(it.next()));}
+                while (it.hasNext()) {
+                    addFeature(parseFeature(it.next()));
+                    nFeatures++;
+                }
             }
+            LOG.info("Total features: " + nFeatures);
 
             if (config.fastMapping()) {fastMap();}
 
             if (config.weightedAverageMapping()) {weightedAverageMap();}
+
+            // TODO  aggiungere info sui nodi mappati
+
         }
     }
 
@@ -83,20 +103,28 @@ public class GreenRouting implements GraphBuilderModule {
 
     /**
      * Maps each feature to its closest street edge.
-     * @param featuresWithId a map in which the key is the wayId and the value is a list of the
-     *                       features with that id.
+     *
+     * @param featuresWithId    a map in which the key is the wayId and the value is a list of the
+     *                          features with that id.
      * @param streetEdgesWithId a map in which the key is the wayId and the value is a list of the
      *                          street edges with that id.
-     * @return a map in which the key is a street edge and the value is a list of features
-     * whose nearest edge is the key.
+     * @return a map in which the key is a street edge and the value is a list of features whose
+     * nearest edge is the key.
      */
     public Map<StreetEdge, List<GreenFeature>> mapFeaturesToNearestEdge(
             Map<Long, List<GreenFeature>> featuresWithId,
             Map<Long, List<GreenStreetEdge>> streetEdgesWithId
     ) {
-        Map<StreetEdge, List<GreenFeature>> scoresForEdge = new HashMap<>();
+        Map<StreetEdge, List<GreenFeature>> featuresForEdge = new HashMap<>();
 
-        for (var id : featuresWithId.keySet()) {
+        var sharedIds = featuresWithId.keySet()
+                .stream()
+                .filter(k -> streetEdgesWithId.containsKey(k))
+                .collect(Collectors.toList());
+
+        progressTracker = track("Map features to street edges", 5000, sharedIds.size());
+
+        for (var id : sharedIds) {
             var edgesWithId = streetEdgesWithId.get(id);
             for (var feature : featuresWithId.get(id)) {
                 var minDistance = edgesWithId.stream()
@@ -110,17 +138,22 @@ public class GreenRouting implements GraphBuilderModule {
                         .collect(Collectors.toList());
 
                 for (GreenStreetEdge edge : nearestEdges) {
-                    scoresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
-                    scoresForEdge.get(edge).add(feature);
+                    featuresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
+                    featuresForEdge.get(edge).add(feature);
                 }
+
             }
+            progressTracker.step(m -> LOG.info(m));
         }
 
-        return scoresForEdge;
+        LOG.info(progressTracker.completeMessage());
+
+        return featuresForEdge;
     }
 
     /**
      * Returns all the instances of {@link GreenStreetEdge} with the specified id.
+     *
      * @param id the id for the edges.
      * @return a list of all the edges with the specified id.
      */
@@ -130,6 +163,7 @@ public class GreenRouting implements GraphBuilderModule {
 
     /**
      * Adds a feature to the internal map that stores the features grouped by their id.
+     *
      * @param feature the feature to be added.
      */
     private void addFeature(GreenFeature feature) {
@@ -141,39 +175,46 @@ public class GreenRouting implements GraphBuilderModule {
     }
 
     /**
-     * For each id, sets the score of the first corresponding feature to the first
-     * corresponding edge. This approach can be used when data provide a single feature
-     * (thus a single score) for each id.
-     *
+     * For each id, sets the score of the first corresponding feature to the first corresponding
+     * edge. This approach can be used when data provide a single feature (thus a single score) for
+     * each id.
+     * <p>
      * It's the fastest kind of mapping because it simply iterates over the ids one time.
      */
     private void fastMap() {
+        progressTracker =
+                track("Map features to street edges", 5000, featuresWithId.keySet().size());
+
         for (var id : featuresWithId.keySet()) {
             var score = featuresWithId.get(id).get(0).score;
             var edgesForID = greenStreetEdgesForID(id);
 
             for (GreenStreetEdge edge : edgesForID) {edge.greenyness = score;}
+
+            progressTracker.step(m -> LOG.info(m));
         }
+
+        LOG.info(progressTracker.completeMessage());
     }
 
     /**
-     * Groups the features by their nearest edge and performs
-     * a weighted average of their scores based on their length.
-     * The calculated value is then set as a "green score" for the edge.
-     *
-     * This option allows for multiple features (thus multiple scores) for
-     * a single id.
+     * Groups the features by their nearest edge and performs a weighted average of their scores
+     * based on their length. The calculated value is then set as a "green score" for the edge.
+     * <p>
+     * This option allows for multiple features (thus multiple scores) for a single id.
      */
     private void weightedAverageMap() {
         Map<StreetEdge, List<GreenFeature>> closestFeatures =
                 mapFeaturesToNearestEdge(this.featuresWithId, this.edgesWithId);
 
         for (StreetEdge edge : closestFeatures.keySet()) {
-            var totalLength = closestFeatures.get(edge).stream()
+            var totalLength = closestFeatures.get(edge)
+                    .stream()
                     .mapToDouble(segment -> segment.geometry.getLength())
                     .sum();
 
-            ((GreenStreetEdge) edge).greenyness = closestFeatures.get(edge).stream()
+            ((GreenStreetEdge) edge).greenyness = closestFeatures.get(edge)
+                    .stream()
                     .mapToDouble(feature -> feature.score * feature.geometry.getLength())
                     .sum() / totalLength;
         }
@@ -187,13 +228,14 @@ public class GreenRouting implements GraphBuilderModule {
      * @return an instance of GreenFeature populated with the values extracted from the argument.
      */
     private GreenFeature parseFeature(SimpleFeature feature) {
-        var id = Long.parseLong((String) feature.getAttribute(config.getId()));
+        var id = ((Integer) feature.getAttribute(config.getId())).longValue();
         var expression = config.getExpression();
 
         var variables = new HashMap<String, Double>();
         config.getVariables().forEach(variable -> {
-            variables.put(variable, (Double) feature.getAttribute(variable));
-            expression.setVariable(variable, (Double) feature.getAttribute(variable));
+            var value = ((Number) feature.getAttribute(variable)).doubleValue();
+            variables.put(variable, value);
+            expression.setVariable(variable, value);
         });
         var score = expression.evaluate();
 
@@ -213,11 +255,9 @@ public class GreenRouting implements GraphBuilderModule {
     private Map<Long, List<GreenStreetEdge>> getStreetEdges(Graph graph) {
         Map<Long, List<GreenStreetEdge>> edgesWithId = new HashMap<>();
 
-        graph.getStreetEdges().forEach(se -> {
-            if (se instanceof GreenStreetEdge) {
-                edgesWithId.computeIfAbsent(se.wayId, id -> new ArrayList<>());
-                edgesWithId.get(se.wayId).add((GreenStreetEdge) se);
-            }
+        graph.getEdgesOfType(GreenStreetEdge.class).forEach(edge -> {
+            edgesWithId.computeIfAbsent(edge.wayId, id -> new ArrayList<>());
+            edgesWithId.get(edge.wayId).add(edge);
         });
 
         return edgesWithId;
@@ -225,10 +265,10 @@ public class GreenRouting implements GraphBuilderModule {
 
     /**
      * Loads a feature collection from a designated geojson file.
+     *
      * @param dataFile the file containing the features.
-     * @return an empty optional if a suitable loader could not be found or
-     * an access error occurred. Otherwise, the optional contains a feature
-     * collection.
+     * @return an empty optional if a suitable loader could not be found or an access error
+     * occurred. Otherwise, the optional contains a feature collection.
      */
     private Optional<SimpleFeatureCollection> getFeatureCollection(File dataFile) {
         Map<String, Object> params = new HashMap<>();

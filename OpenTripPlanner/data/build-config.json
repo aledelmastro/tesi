@@ -2,10 +2,20 @@
 {
   "greenRouting" :
   {
-    "fileName": "data/green.json",
-	"id": "id",
-	"scores": ["score", "prova"],
-	"formula": "score",
+    "fileName": "data/streets_withcharacterization.geojson",
+	"id": "osm_id",
+	"scores": [
+		"tree_coverage", 
+		"inside_parks",
+		"inbetween_parks",
+		"surrounded_parks",
+		"alongside_parks",
+		"inside_other_green",
+		"inbetween_other_green",
+		"surrounded_other_green",
+		"alongside_other_green"
+	],
+	"formula": "20*tree_coverage",
 	"mappingType": "average"
   }
 }

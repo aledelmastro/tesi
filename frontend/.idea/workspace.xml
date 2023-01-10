@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Aggiunto inspector per vedere i &quot;green score&quot;." />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Aggiunto inspector per vedere i &quot;green score&quot;.">
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/test/green-test/green.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/test/green-test/green.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -53,6 +58,7 @@
       <workItem from="1671806362648" duration="310000" />
       <workItem from="1671897057333" duration="62000" />
       <workItem from="1673264441619" duration="14272000" />
+      <workItem from="1673345538580" duration="711000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>

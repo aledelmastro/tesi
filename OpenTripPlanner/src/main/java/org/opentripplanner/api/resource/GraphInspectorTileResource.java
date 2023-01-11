@@ -6,7 +6,11 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
@@ -19,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.geotools.geometry.Envelope2D;
+import org.json.simple.JSONObject;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.api.parameter.MIMEImageFormat;
 import org.opentripplanner.common.geometry.MapTile;
@@ -28,6 +33,7 @@ import org.opentripplanner.inspector.TileRenderer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.util.PolylineEncoder;
 
 /**
  * Slippy map tile API for rendering various graph information for inspection/debugging purpose
@@ -103,6 +109,15 @@ public class GraphInspectorTileResource {
         return layersList;
     }
 
+    @GET @Path("variables")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getVariables() {
+
+        Router router = otpServer.getRouter();
+        var variables = router.graph.getEdgesOfType(GreenStreetEdge.class).get(0).getVariables().keySet();
+        return new JSONObject(Map.of("variables", new ArrayList<>(variables))).toJSONString();
+    }
+
     @QueryParam("latTl")
     double latTl;
 
@@ -117,32 +132,62 @@ public class GraphInspectorTileResource {
 
     @GET @Path("/json/{layer}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getGeoJson(@PathParam("layer") String layer) {
+    public String getGeoJson(@PathParam("layer") String feature) {
         var router = otpServer.getRouter();
         var graph = router.graph;
         FeatureCollection collection;
 
-        if (layer.equals("green"))
+        if (feature.equals("green"))
             collection = getGreenEdgesAsFeatures();
-        else
+        else if (feature.equals("others"))
             collection = getOtherThanGreenEdges();
+        else
+            collection = getEdgesWithScore(feature);
 
+        var r = collection.toJson();
         return collection.toJson();
     }
 
-    private FeatureCollection getGreenEdgesAsFeatures() {
+    private FeatureCollection getEdgesWithScore(String feature) {
         var router = otpServer.getRouter();
         var graph = router.graph;
+
+        /*JSONObject o = new JSONObject();
+
+        o.put("type", "FeatureCollection");*/
 
         var features = graph
                 .getStreetIndex()
                 .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
                 .stream()
                 .filter(e -> e instanceof GreenStreetEdge)
-                .map(e -> toFeature(e.getGeometry(), ((GreenStreetEdge) e).greenyness))
+                .map(e -> toFeature(e.getGeometry(), ((GreenStreetEdge) e).getVariables().getOrDefault(feature, 0d)))
                 .collect(Collectors.toList());
 
+        //o.put("features", features);
         return FeatureCollection.fromFeatures(features);
+        //return o.toJSONString();
+    }
+
+    private FeatureCollection getGreenEdgesAsFeatures() {
+        var router = otpServer.getRouter();
+        var graph = router.graph;
+
+        /*JSONObject o = new JSONObject();
+
+        o.put("type", "FeatureCollection");*/
+
+        var features = graph
+                .getStreetIndex()
+                .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr))
+                .stream()
+                .filter(e -> e instanceof GreenStreetEdge)
+                .map(e -> toFeature(e.getGeometry(), ((GreenStreetEdge) e).getGreenyness()))
+                .collect(Collectors.toList());
+
+        //o.put("features", features);
+        return FeatureCollection.fromFeatures(features);
+        //return o.toJSONString();
     }
 
     private FeatureCollection getOtherThanGreenEdges() {
@@ -163,8 +208,10 @@ public class GraphInspectorTileResource {
     private Feature toFeature(org.locationtech.jts.geom.LineString ls, double score) {
         var feature = this.toFeature(ls);
         feature.addNumberProperty("score", score);
+        //feature.put("properties", Map.of("score", score));
 
-        return feature;
+        //return Feature.fromJson(feature.toJson());
+        return feature/*.toJSONString()*/;
     }
 
     private Feature toFeature(org.locationtech.jts.geom.LineString ls) {
@@ -172,6 +219,11 @@ public class GraphInspectorTileResource {
                 .map(p -> Point.fromLngLat(p.x, p.y))
                 .collect(Collectors.toList());
 
+/*        JSONObject o = new JSONObject();
+        o.put("type", "Feature");
+        o.put("geometry", (LineString.fromLngLats(points)).toPolyline(5));*/
+
         return Feature.fromGeometry(LineString.fromLngLats(points));
+        //return o;
     }
 }

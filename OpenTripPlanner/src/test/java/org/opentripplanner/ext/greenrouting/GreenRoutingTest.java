@@ -128,7 +128,7 @@ public class GreenRoutingTest {
         s.wayId = id;
         gr.buildGraph(g, null, null);
 
-        assertEquals(s.greenyness, 19, 0);
+        assertEquals(s.getGreenyness(), 19, 0);
     }
 
     private GreenRouting getDefaultGreenRouting() {

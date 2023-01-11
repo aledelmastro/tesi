@@ -6,8 +6,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import org.opentripplanner.ext.greenrouting.GreenFeature;
 
 public class GreenRoutingConfig {
-
-    private final String fileName;
+private final String fileName;
     private final String id;
     private final Set<String> variables;
     private final GreenMappingMode mode;
@@ -16,13 +15,13 @@ public class GreenRoutingConfig {
     public GreenRoutingConfig(
             String fileName,
             String id,
-            Set<String> variables,
+            Set<String> vars,
             GreenMappingMode mode,
             String formula
     ) {
         this.fileName = fileName;
         this.id = id;
-        this.variables = variables;
+        this.variables = vars;
         this.mode = mode;
 
         this.expression = new ExpressionBuilder(formula).variables(variables).build();

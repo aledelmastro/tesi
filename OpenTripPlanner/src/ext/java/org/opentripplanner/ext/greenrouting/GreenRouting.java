@@ -111,11 +111,11 @@ public class GreenRouting implements GraphBuilderModule {
      * @return a map in which the key is a street edge and the value is a list of features whose
      * nearest edge is the key.
      */
-    public Map<StreetEdge, List<GreenFeature>> mapFeaturesToNearestEdge(
+    public Map<GreenStreetEdge, List<GreenFeature>> mapFeaturesToNearestEdge(
             Map<Long, List<GreenFeature>> featuresWithId,
             Map<Long, List<GreenStreetEdge>> streetEdgesWithId
     ) {
-        Map<StreetEdge, List<GreenFeature>> featuresForEdge = new HashMap<>();
+        Map<GreenStreetEdge, List<GreenFeature>> featuresForEdge = new HashMap<>();
 
         var sharedIds = featuresWithId.keySet()
                 .stream()
@@ -146,8 +146,8 @@ public class GreenRouting implements GraphBuilderModule {
             progressTracker.step(m -> LOG.info(m));
         }
 
-        /*LOG.info(progressTracker.completeMessage());
-        LOG.info("Couldn't find a valid edge for " + (
+        LOG.info(progressTracker.completeMessage());
+        /*LOG.info("Couldn't find a valid edge for " + (
                 featuresWithId.keySet().size() - sharedIds.size()
         ) + " features.");
         LOG.info("Couldn't find a feature for " + (
@@ -195,7 +195,7 @@ public class GreenRouting implements GraphBuilderModule {
             var score = featuresWithId.get(id).get(0).score;
             var edgesForID = greenStreetEdgesForID(id);
 
-            for (GreenStreetEdge edge : edgesForID) {edge.greenyness = score;}
+            for (GreenStreetEdge edge : edgesForID) {edge.setGreenyness(score);}
 
             progressTracker.step(m -> LOG.info(m));
         }
@@ -210,19 +210,30 @@ public class GreenRouting implements GraphBuilderModule {
      * This option allows for multiple features (thus multiple scores) for a single id.
      */
     private void weightedAverageMap() {
-        Map<StreetEdge, List<GreenFeature>> closestFeatures =
+        Map<GreenStreetEdge, List<GreenFeature>> closestFeatures =
                 mapFeaturesToNearestEdge(this.featuresWithId, this.edgesWithId);
 
-        for (StreetEdge edge : closestFeatures.keySet()) {
+        for (GreenStreetEdge edge : closestFeatures.keySet()) {
             var totalLength = closestFeatures.get(edge)
                     .stream()
                     .mapToDouble(segment -> segment.geometry.getLength())
                     .sum();
 
-            ((GreenStreetEdge) edge).greenyness = closestFeatures.get(edge)
-                    .stream()
-                    .mapToDouble(feature -> feature.score * feature.geometry.getLength())
-                    .sum() / totalLength;
+            edge.setGreenyness(
+                    closestFeatures.get(edge)
+                            .stream()
+                            .mapToDouble(feature -> feature.score * feature.geometry.getLength())
+                            .sum() / totalLength
+            );
+
+            // TODO divisione per 0
+            config.getVariables().forEach(variable -> {
+                edge.putVariable(variable, closestFeatures.get(edge)
+                        .stream()
+                        .mapToDouble(feature -> feature.variables.get(variable) * feature.geometry.getLength())
+                        .sum() / totalLength);
+            });
+
         }
     }
 

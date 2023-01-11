@@ -18,8 +18,8 @@ public class GreenEdgeRenderer implements EdgeVertexRenderer {
     public boolean renderEdge(Edge e, EdgeVisualAttributes attrs) {
         if (e instanceof GreenStreetEdge) {
             var ge = (GreenStreetEdge) e;
-            attrs.color = palette.getColor(ge.greenyness);
-            attrs.label = ge.greenyness.toString();
+            attrs.color = palette.getColor(ge.getGreenyness());
+            attrs.label = ge.getGreenyness().toString();
         }
 
         return (e instanceof GreenStreetEdge);

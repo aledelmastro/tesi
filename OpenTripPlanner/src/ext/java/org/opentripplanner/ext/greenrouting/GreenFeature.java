@@ -28,35 +28,6 @@ public class GreenFeature {
     }
 
     /**
-     * Computes the kind of relation that exists among two line segments.
-     *
-     * @param ls1 the first line segment.
-     * @param ls2 the second line segment-
-     * @return a value that describes the relation.
-     */
-    private Relation getRelation(LineSegment ls1, LineSegment ls2) {
-        RobustLineIntersector rli = new RobustLineIntersector();
-        rli.computeIntersection(
-                ls1.getCoordinate(0),
-                ls1.getCoordinate(1),
-                ls2.getCoordinate(0),
-                ls2.getCoordinate(1)
-        );
-
-        if (rli.getIntersectionNum() == COLLINEAR_INTERSECTION) {return Relation.OVERLAP;}
-
-        var dStart = ls1.distance(ls2.getCoordinate(0));
-        var dEnd = ls1.distance(ls2.getCoordinate(1));
-
-        if (rli.getIntersectionNum() == POINT_INTERSECTION) {
-            if (dStart == 0 || dEnd == 0) {return Relation.SEPARATED;}
-            else {return Relation.INTERSECT;}
-        }
-
-        return Relation.SEPARATED;
-    }
-
-    /**
      * Calculates the distance between the feature and another shape in terms of the relation
      * between their geometries.
      *
@@ -84,6 +55,37 @@ public class GreenFeature {
                 .map(s -> s.midPoint().distance(feature.midPoint()))
                 .min(Double::compareTo)
                 .get();
+    }
+
+    /**
+     * Computes the kind of relation that exists among two line segments.
+     *
+     * @param ls1 the first line segment.
+     * @param ls2 the second line segment-
+     * @return a value that describes the relation.
+     */
+    private Relation getRelation(LineSegment ls1, LineSegment ls2) {
+        RobustLineIntersector rli = new RobustLineIntersector();
+        rli.computeIntersection(
+                ls1.getCoordinate(0),
+                ls1.getCoordinate(1),
+                ls2.getCoordinate(0),
+                ls2.getCoordinate(1)
+        );
+
+        if (rli.getIntersectionNum() == COLLINEAR_INTERSECTION) {
+            return Relation.OVERLAP;
+        }
+
+        var dStart = ls1.distance(ls2.getCoordinate(0));
+        var dEnd = ls1.distance(ls2.getCoordinate(1));
+
+        if (rli.getIntersectionNum() == POINT_INTERSECTION) {
+            if (dStart == 0 || dEnd == 0) {return Relation.SEPARATED;}
+            else {return Relation.INTERSECT;}
+        }
+
+        return Relation.SEPARATED;
     }
 
     /**

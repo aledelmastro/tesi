@@ -69,7 +69,7 @@ public class GreenRouting implements GraphBuilderModule {
 
         var nStreetEdges = graph.getEdgesOfType(StreetEdge.class).size();
         var nGreenEdges = graph.getEdgesOfType(GreenStreetEdge.class).size();
-        int coverage = nStreetEdges != 0 ? (int)(nGreenEdges / (float)nStreetEdges * 100) : 0;
+        int coverage = nStreetEdges != 0 ? (int) (nGreenEdges / (float) nStreetEdges * 100) : 0;
 
         LOG.info("Green edges are " + nGreenEdges + " (" + coverage + "% of the total).");
 
@@ -146,7 +146,13 @@ public class GreenRouting implements GraphBuilderModule {
             progressTracker.step(m -> LOG.info(m));
         }
 
-        LOG.info(progressTracker.completeMessage());
+        /*LOG.info(progressTracker.completeMessage());
+        LOG.info("Couldn't find a valid edge for " + (
+                featuresWithId.keySet().size() - sharedIds.size()
+        ) + " features.");
+        LOG.info("Couldn't find a feature for " + (
+                featuresWithId.keySet().size() - sharedIds.size()
+        ) + " features.");*/
 
         return featuresForEdge;
     }

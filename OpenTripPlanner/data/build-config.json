@@ -2,8 +2,10 @@
 {
   "greenRouting" :
   {
-    "fileName": "data/streets_withcharacterization.geojson",
+    "inputFile": "data/streets_withcharacterization.geojson",
 	"id": "osm_id",
+	"bufferSize": 0.0005, 
+	"outputFile": "data/LDGeojson.json",
 	"scores": [
 		"tree_coverage", 
 		"inside_parks",
@@ -13,9 +15,12 @@
 		"inside_other_green",
 		"inbetween_other_green",
 		"surrounded_other_green",
-		"alongside_other_green"
+		"alongside_other_green",
+		"alongside_river",
+		"drinking_water",
+		"bench"
 	],
-	"formula": "20*tree_coverage",
+	"formula": "tree_coverage",
 	"mappingType": "average"
   }
 }

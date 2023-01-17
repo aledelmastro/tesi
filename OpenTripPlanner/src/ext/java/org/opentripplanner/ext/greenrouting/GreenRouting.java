@@ -3,9 +3,13 @@ package org.opentripplanner.ext.greenrouting;
 import static org.opentripplanner.util.ProgressTracker.track;
 import static org.opentripplanner.util.logging.ThrottleLogger.throttle;
 
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Point;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class GreenRouting implements GraphBuilderModule {
 
+    private static final String URL_API =
+            "https://api.mapbox.com/tilesets/v1/sources/ale-delmastro/green";
     private static final Logger LOG = LoggerFactory.getLogger(GreenRouting.class);
     /**
      * Wrap LOG with a Throttle logger errors, this will prevent thousands of log events, and just
@@ -48,6 +54,7 @@ public class GreenRouting implements GraphBuilderModule {
     Map<Long, List<GreenFeature>> featuresWithId;
     Map<Long, List<GreenStreetEdge>> edgesWithId;
     private ProgressTracker progressTracker;
+    private final int nFeaturesMulti = 0;
 
     public GreenRouting(GreenRoutingConfig config) {
         this.config = config;
@@ -79,6 +86,7 @@ public class GreenRouting implements GraphBuilderModule {
 
             LOG.info("Collecting features...");
             var nFeatures = 0;
+
             try (SimpleFeatureIterator it = featureCollection.get().features()) {
                 while (it.hasNext()) {
                     addFeature(parseFeature(it.next()));
@@ -90,6 +98,8 @@ public class GreenRouting implements GraphBuilderModule {
             if (config.fastMapping()) {fastMap();}
 
             if (config.weightedAverageMapping()) {weightedAverageMap();}
+
+            this.uploadTiles(graph);
 
             // TODO  aggiungere info sui nodi mappati
 
@@ -127,14 +137,9 @@ public class GreenRouting implements GraphBuilderModule {
         for (var id : sharedIds) {
             var edgesWithId = streetEdgesWithId.get(id);
             for (var feature : featuresWithId.get(id)) {
-                var minDistance = edgesWithId.stream()
-                        .mapToDouble(edge -> feature.getDistance(edge.getGeometry()))
-                        .min()
-                        .orElse(-1);
-
                 var nearestEdges = edgesWithId.stream()
-                        .filter(streetEdge -> feature.getDistance(streetEdge.getGeometry())
-                                == minDistance)
+                        .filter(streetEdge -> feature.intersectsBuffer(
+                                streetEdge.getGeometry(), config.getBufferSize()))
                         .collect(Collectors.toList());
 
                 for (GreenStreetEdge edge : nearestEdges) {
@@ -222,18 +227,17 @@ public class GreenRouting implements GraphBuilderModule {
             edge.setGreenyness(
                     closestFeatures.get(edge)
                             .stream()
-                            .mapToDouble(feature -> feature.score * feature.geometry.getLength())
-                            .sum() / totalLength
+                            .mapToDouble(feature -> feature.score * feature.proportion(edge.getGeometry(), config.getBufferSize()))
+                            .sum()
             );
 
-            // TODO divisione per 0
-            config.getVariables().forEach(variable -> {
+            config.getProperties().forEach(variable -> {
                 edge.putVariable(variable, closestFeatures.get(edge)
                         .stream()
-                        .mapToDouble(feature -> feature.variables.get(variable) * feature.geometry.getLength())
-                        .sum() / totalLength);
+                        .mapToDouble(feature -> feature.variables.get(variable)
+                                * feature.proportion(edge.getGeometry(), config.getBufferSize()))
+                        .sum());
             });
-
         }
     }
 
@@ -249,7 +253,7 @@ public class GreenRouting implements GraphBuilderModule {
         var expression = config.getExpression();
 
         var variables = new HashMap<String, Double>();
-        config.getVariables().forEach(variable -> {
+        config.getProperties().forEach(variable -> {
             var value = ((Number) feature.getAttribute(variable)).doubleValue();
             variables.put(variable, value);
             expression.setVariable(variable, value);
@@ -303,5 +307,45 @@ public class GreenRouting implements GraphBuilderModule {
         }
 
         return featureCollection;
+    }
+
+    private void uploadTiles(Graph graph) {
+        LOG.info("Generating LDGeojson...");
+        var features = graph.getEdgesOfType(GreenStreetEdge.class)
+                .stream()
+                .map(e -> toFeature(e).toJson())
+                .collect(Collectors.toList());
+
+        LOG.info("Write LDGeojson on file.");
+        try (PrintWriter pw = new PrintWriter(config.getOutputFileName())) {
+            features.forEach(f -> pw.println(f));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*try {
+            URL url = new URL(URL_API);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "multipart/form-data");
+            conn.
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    private Feature toFeature(GreenStreetEdge edge) {
+        var points = Arrays.stream(edge.getGeometry().getCoordinates())
+                .map(p -> Point.fromLngLat(p.x, p.y))
+                .collect(Collectors.toList());
+
+        var feature = Feature.fromGeometry(com.mapbox.geojson.LineString.fromLngLats(points));
+        var params = edge.getVariables().keySet();
+        params.forEach(p -> feature.addNumberProperty(p, edge.getVariables().get(p)));
+        feature.addNumberProperty("score", edge.getGreenyness());
+
+        return feature;
     }
 }

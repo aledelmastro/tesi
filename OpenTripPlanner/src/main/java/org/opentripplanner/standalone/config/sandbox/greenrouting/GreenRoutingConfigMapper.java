@@ -25,17 +25,16 @@ public class GreenRoutingConfigMapper {
             case "average":
                 mode = GreenMappingMode.AVERAGE;
                 break;
-            /*case "fit":
-                mode = GreenMappingMode.FIT_DATA_SEGMENTS;
-                break;*/
         }
 
         return new GreenRoutingConfig(
-                c.asText("fileName"),
+                c.asText("inputFile"),
                 c.asText("id"),
+                c.asDouble("bufferSize"),
                 variables,
                 mode,
-                formula
+                formula,
+                c.asText("outputFile")
         );
     }
 }

@@ -3,10 +3,12 @@ package org.opentripplanner.ext.greenrouting;
 import static org.locationtech.jts.algorithm.LineIntersector.COLLINEAR_INTERSECTION;
 import static org.locationtech.jts.algorithm.LineIntersector.POINT_INTERSECTION;
 
+import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.geotools.xml.xsi.XSISimpleTypes.Int;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineSegment;
@@ -55,6 +57,33 @@ public class GreenFeature {
                 .map(s -> s.midPoint().distance(feature.midPoint()))
                 .min(Double::compareTo)
                 .get();
+    }
+
+    public boolean intersectsBuffer(Geometry geometry, double bufferSize) {
+        Geometry featureGeometry = this.geometry;
+        if (!(geometry instanceof LineString) || !(featureGeometry instanceof LineString)) {
+            throw new IllegalArgumentException("Geometry is not a line string.");
+        }
+
+        var intersection = featureGeometry.buffer(bufferSize).intersection(geometry);
+
+        return intersection.getLength() > bufferSize;
+    }
+
+    public double proportion(Geometry geometry, double bufferSize) {
+        Geometry featureGeometry = this.geometry;
+        if (!(geometry instanceof LineString) || !(featureGeometry instanceof LineString)) {
+            throw new IllegalArgumentException("Geometry is not a line string.");
+        }
+
+        var intersection = featureGeometry.buffer(bufferSize).intersection(geometry);
+
+        // to get rid of the "extra" length given by the width of the buffer
+        var prop = intersection.getLength();
+        if (intersection.getLength() > featureGeometry.getLength())
+            prop = featureGeometry.getLength();
+
+        return geometry.getLength() > 0 ? prop / geometry.getLength() : 0;
     }
 
     /**

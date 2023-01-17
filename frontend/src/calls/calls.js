@@ -29,9 +29,19 @@ async function requestItinerary(from, to, time, date, mode, locale, callback) {
     return res.data.plan.itineraries;
 }
 
-async function requestInspector(latBr, lngBr, latTl, lngTl, green) {
-    const mode = green ? "green" : "other";
-    const url = baseUrl + "/inspector/json/" + mode;
+async function requestInspectorAll(mode) {
+    const url = baseUrl + "/inspector/all/" + mode;
+
+    const res = await axios.get(url);
+
+    if (res.data.error !== undefined)
+        throw new Error(res.data.error.id + " " + res.data.error.message);
+
+    return res.data;
+}
+
+async function requestInspector(latBr, lngBr, latTl, lngTl, mode) {
+    const url = baseUrl + "/inspector/green/" + mode;
 
     const res = await axios.get(url,{
         params:{
@@ -48,4 +58,15 @@ async function requestInspector(latBr, lngBr, latTl, lngTl, green) {
     return res.data;
 }
 
-export {requestItinerary, requestInspector}
+async function requestInspectorModes() {
+    const url = baseUrl + "/inspector/green/props";
+
+    const res = await axios.get(url,{});
+
+    if (res.data.error !== undefined)
+        throw new Error(res.data.error.id + " " + res.data.error.message);
+
+    return res.data.variables;
+}
+
+export {requestItinerary, requestInspector, requestInspectorModes, requestInspectorAll}

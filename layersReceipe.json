@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "layers": {
+    "street": {
+      "source": "mapbox://tileset-source/ale-delmastro/hello-world",
+      "minzoom": 12,
+      "maxzoom": 14
+    }
+  }
+}

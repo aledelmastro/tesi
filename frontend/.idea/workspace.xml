@@ -1,19 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Aggiunto inspector per vedere i &quot;green score&quot;.">
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/data/build-config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/GreenRouting.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/test/green-test/green.json" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/test/green-test/green.json" afterDir="false" />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="LayerSelector con tiles pre renderizzate.">
+      <change afterPath="$PROJECT_DIR$/src/components/LayerSelector.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../layersReceipe.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/InputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/LabelledInput.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LabelledInput.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -31,10 +56,14 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/Downloads/turf-master/turf-master" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
     <property name="ts.external.directory.path" value="C:\Users\Alessandro\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6461.79\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="npm.start">
+    <configuration name="Debug" type="JavascriptDebugType" uri="http://localhost:3000">
+      <method v="2" />
+    </configuration>
     <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -45,6 +74,10 @@
       <envs />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="JavaScript Debug.Debug" />
+      <item itemvalue="npm.start" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -58,7 +91,12 @@
       <workItem from="1671806362648" duration="310000" />
       <workItem from="1671897057333" duration="62000" />
       <workItem from="1673264441619" duration="14272000" />
-      <workItem from="1673345538580" duration="711000" />
+      <workItem from="1673345538580" duration="11621000" />
+      <workItem from="1673426212620" duration="14718000" />
+      <workItem from="1673511012591" duration="17917000" />
+      <workItem from="1673598124454" duration="21173000" />
+      <workItem from="1673858364816" duration="22648000" />
+      <workItem from="1673971280813" duration="2579000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -74,7 +112,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673288851091</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="LayerSelector con tiles pre renderizzate.">
+      <created>1673908991941</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1673908991941</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -95,6 +140,7 @@
     <MESSAGE value="[UI] Ripulito il progetto" />
     <MESSAGE value="Ripulito progetto intellij" />
     <MESSAGE value="Aggiunto inspector per vedere i &quot;green score&quot;." />
-    <option name="LAST_COMMIT_MESSAGE" value="Aggiunto inspector per vedere i &quot;green score&quot;." />
+    <MESSAGE value="LayerSelector con tiles pre renderizzate." />
+    <option name="LAST_COMMIT_MESSAGE" value="LayerSelector con tiles pre renderizzate." />
   </component>
 </project>

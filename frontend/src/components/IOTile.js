@@ -1,12 +1,12 @@
-import InputWidget from "./InputWidget";
+import SearchInputWidget from "./SearchInputWidget";
 import React, {useState} from "react";
 import ResContainer from "./ResContainer";
 
 function IOTile(props) {
     const [res, setRes] = useState([]);
     return (
-        <div>
-            <InputWidget
+        <div style={style}>
+            <SearchInputWidget
                 setRes={setRes}
                 submit={props.submit}
                 setFrom={props.setFrom}
@@ -17,6 +17,10 @@ function IOTile(props) {
             {res.map((itin, i) => <ResContainer itin={itin} key={i} id={i} plotResult={props.plotResult}/>)}
         </div>
     );
+}
+
+const style = {
+    padding: 20
 }
 
 export default IOTile;

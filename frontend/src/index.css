@@ -56,3 +56,11 @@ input[type=number]{
   z-index: 10;
   background-color: #61dafb;
 }
+
+#layersCard {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background-color: transparent;
+  z-index: 100
+}

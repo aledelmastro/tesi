@@ -1,6 +1,7 @@
 import React from "react";
 import {decodePolyline} from "../mapUtils/MapUtils";
 import * as PropTypes from "prop-types";
+import {Card} from "semantic-ui-react";
 
 function ResContainer(props) {
     const itin = props.itin;
@@ -11,6 +12,7 @@ function ResContainer(props) {
     const generalizedCost = itin.generalizedCost;
     const legs = itin.legs;
     return (
+        <Card style={style}>
         <div className="resContainer" key={props.id} onClick={() => {
             let points = [];
             legs.forEach(leg => {
@@ -23,7 +25,13 @@ function ResContainer(props) {
             <div>Fine: {endTime.toLocaleString()}</div>
             <div>Costo: {generalizedCost}</div>
         </div>
+        </Card>
     );
+}
+
+const style = {
+    width: "100%",
+    padding: 10
 }
 
 ResContainer.propTypes = {

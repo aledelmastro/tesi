@@ -38,6 +38,8 @@ public class TileRendererManager {
 
         // Register layers.
         renderers.put("green-factor", new EdgeVertexTileRenderer(new GreenEdgeRenderer()));
+        renderers.put("non-green-factor", new EdgeVertexTileRenderer(new NonGreenEdgeRenderer()));
+        renderers.put("area-green-factor", new EdgeVertexTileRenderer(new AreaEdgeRenderer()));
         renderers.put("bike-safety", new EdgeVertexTileRenderer(new BikeSafetyEdgeRenderer()));
         renderers.put("thru-traffic", new EdgeVertexTileRenderer(new NoThruTrafficEdgeRenderer()));
         renderers.put("traversal", new EdgeVertexTileRenderer(

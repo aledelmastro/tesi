@@ -4,43 +4,36 @@ import java.util.HashMap;
 import java.util.Map;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.model.P2;
+import org.opentripplanner.routing.edgetype.AreaEdge;
+import org.opentripplanner.routing.edgetype.AreaEdgeList;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
+import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.SplitterVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.util.I18NString;
 
-public class GreenStreetEdge extends StreetEdge implements GreenFactor {
-    private Double greenyness = 0.0;
+public class GreenAreaEdge extends AreaEdge implements GreenFactor {
 
+    private Double greenyness = 0.0;
     private Map<String, Double> variables = new HashMap<>();
 
-    public GreenStreetEdge(
-            StreetVertex v1,
-            StreetVertex v2,
+    public GreenAreaEdge(
+            IntersectionVertex startEndpoint,
+            IntersectionVertex endEndpoint,
             LineString geometry,
             I18NString name,
             double length,
-            StreetTraversalPermission permission,
-            boolean back
+            StreetTraversalPermission permissions,
+            boolean back,
+            AreaEdgeList area
     ) {
-        super(v1, v2, geometry, name, length, permission, back);
-    }
-
-    public GreenStreetEdge(
-            StreetVertex v1,
-            StreetVertex v2,
-            LineString geometry,
-            I18NString name,
-            StreetTraversalPermission permission,
-            boolean back
-    ) {
-        super(v1, v2, geometry, name, permission, back);
+        super(startEndpoint, endEndpoint, geometry, name, length, permissions, back, area);
     }
 
     @Override
     public double getGreenyness() {
-        return greenyness;
+        return this.greenyness;
     }
 
     @Override
@@ -63,8 +56,6 @@ public class GreenStreetEdge extends StreetEdge implements GreenFactor {
         this.variables.put(variable, value);
     }
 
-    //TODO valutare override di splitDestructively
-
     public P2<StreetEdge> splitDestructively(SplitterVertex v) {
         var splitEdges = super.splitDestructively(v);
         var greenSplitEdges = new StreetEdge[]{
@@ -74,8 +65,8 @@ public class GreenStreetEdge extends StreetEdge implements GreenFactor {
         return new P2<>(greenSplitEdges);
     }
 
-    private static GreenStreetEdge fromStreetEdge(StreetEdge e) {
-        GreenStreetEdge greenEdge = new GreenStreetEdge((StreetVertex) e.getFromVertex(),
+    private static GreenStreetWithElevationEdge fromStreetEdge(StreetEdge e) {
+        GreenStreetWithElevationEdge greenEdge = new GreenStreetWithElevationEdge((StreetVertex) e.getFromVertex(),
                 (StreetVertex) e.getToVertex(), e.getGeometry(), e.getName(), e.getPermission(),
                 e.isBack()
         );

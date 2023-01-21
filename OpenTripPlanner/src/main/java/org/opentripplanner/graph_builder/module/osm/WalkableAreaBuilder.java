@@ -510,6 +510,8 @@ public class WalkableAreaBuilder {
                 wayPropertiesCache.get(areaEntity),
                 areaEntity
             );
+            street.wayId = areaEntity.getId();
+            backStreet.wayId = areaEntity.getId();
             return Set.of(street, backStreet);
         } else {
             // take the part that intersects with the start vertex

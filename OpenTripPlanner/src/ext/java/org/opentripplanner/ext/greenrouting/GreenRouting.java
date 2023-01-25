@@ -96,9 +96,7 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             }
             LOG.info("Total features: " + nFeatures);
 
-            if (config.fastMapping()) {fastMap();}
-
-            if (config.weightedAverageMapping()) {weightedAverageMap();}
+            weightedAverageMap();
 
             this.uploadTiles(graph);
 
@@ -192,29 +190,6 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             this.featuresWithId.get(feature.id).add(feature);
         /*else
             LOG.info("Masterplannnnn");*/
-    }
-
-    /**
-     * For each id, sets the score of the first corresponding feature to the first corresponding
-     * edge. This approach can be used when data provide a single feature (thus a single score) for
-     * each id.
-     * <p>
-     * It's the fastest kind of mapping because it simply iterates over the ids one time.
-     */
-    private void fastMap() {
-        progressTracker =
-                track("Map features to street edges", 5000, featuresWithId.keySet().size());
-
-        for (var id : featuresWithId.keySet()) {
-            var score = featuresWithId.get(id).get(0).combinedScore;
-            var edgesForID = greenStreetEdgesForID(id);
-
-            for (T edge : edgesForID) {edge.setGreenyness(score);}
-
-            progressTracker.step(m -> LOG.info(m));
-        }
-
-        LOG.info(progressTracker.completeMessage());
     }
 
     /**

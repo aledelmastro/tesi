@@ -13,7 +13,6 @@ public class GreenRoutingConfig {
 
     private final Set<String> features;
 
-    private final GreenMappingMode mode;
     private final Expression expression;
     private final String outputFileName;
 
@@ -25,7 +24,6 @@ public class GreenRoutingConfig {
             double bufferSize,
             Set<String> vars,
             Set<String> features,
-            GreenMappingMode mode,
             String formula,
             String outputFileName,
             String logFileName
@@ -35,7 +33,6 @@ public class GreenRoutingConfig {
         this.bufferSize = bufferSize;
         this.properties = vars;
         this.features = features;
-        this.mode = mode;
         this.outputFileName = outputFileName;
         this.logFileName = logFileName;
 
@@ -72,18 +69,6 @@ public class GreenRoutingConfig {
 
     public String getLogFileName() {
         return logFileName;
-    }
-
-    public boolean fastMapping() {
-        return this.mode == GreenMappingMode.FAST;
-    }
-
-    public boolean weightedAverageMapping() {
-        return this.mode == GreenMappingMode.AVERAGE;
-    }
-
-    public boolean fitDataSegmentsMapping() {
-        return this.mode == GreenMappingMode.FIT_DATA_SEGMENTS;
     }
 
     public enum GreenMappingMode {

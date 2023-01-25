@@ -15,6 +15,7 @@ public class GreenRoutingConfigMapper {
 
         GreenMappingMode mode = null;
         var variables = c.asTextSet("scores", Set.of());
+        var features = c.asTextSet("features", Set.of());
         var formula = c.asText("formula");
 
         var mappingType = c.asText("mappingType", "fast");
@@ -32,9 +33,11 @@ public class GreenRoutingConfigMapper {
                 c.asText("id"),
                 c.asDouble("bufferSize"),
                 variables,
+                features,
                 mode,
                 formula,
-                c.asText("outputFile")
+                c.asText("outputFile"),
+                c.asText("logFileName")
         );
     }
 }

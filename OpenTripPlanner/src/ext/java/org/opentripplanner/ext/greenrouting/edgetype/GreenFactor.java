@@ -8,9 +8,17 @@ public interface GreenFactor {
 
     void setGreenyness(double greenyness);
 
-    Map<String, Double> getVariables();
+    Map<String, Double> getScores();
 
-    void setVariables(Map<String, Double> variables);
+    void setScores(Map<String, Double> scores);
 
-    void putVariable(String variable, Double value);
+    void putScore(String label, Double value);
+
+    Map<String, Boolean> getFeatures();
+
+    void setFeatures(Map<String, Boolean> features);
+
+    void putFeature(String label, boolean value);
+
+
 }

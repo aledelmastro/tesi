@@ -15,6 +15,7 @@ public class GreenStreetWithElevationEdge extends StreetWithElevationEdge implem
     private Double greenyness = 0.0;
 
     private Map<String, Double> variables = new HashMap<>();
+    private Map<String, Boolean> features = new HashMap<>();
 
     public GreenStreetWithElevationEdge(StreetVertex v1, StreetVertex v2, LineString geometry, I18NString name, double length, StreetTraversalPermission permission, boolean back) {
         super(v1, v2, geometry, name, length, permission, back);
@@ -35,18 +36,33 @@ public class GreenStreetWithElevationEdge extends StreetWithElevationEdge implem
     }
 
     @Override
-    public Map<String, Double> getVariables() {
+    public Map<String, Double> getScores() {
         return this.variables;
     }
 
     @Override
-    public void setVariables(Map<String, Double> variables) {
-        this.variables = variables;
+    public void setScores(Map<String, Double> scores) {
+        this.variables = scores;
     }
 
     @Override
-    public void putVariable(String variable, Double value) {
-        this.variables.put(variable,value);
+    public void putScore(String label, Double value) {
+        this.variables.put(label,value);
+    }
+
+    @Override
+    public Map<String, Boolean> getFeatures() {
+        return this.features;
+    }
+
+    @Override
+    public void setFeatures(Map<String, Boolean> features) {
+        this.features = features;
+    }
+
+    @Override
+    public void putFeature(String label, boolean value) {
+        this.features.put(label, value);
     }
 
     public P2<StreetEdge> splitDestructively(SplitterVertex v) {

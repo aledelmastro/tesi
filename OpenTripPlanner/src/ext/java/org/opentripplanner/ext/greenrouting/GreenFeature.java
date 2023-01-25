@@ -3,30 +3,35 @@ package org.opentripplanner.ext.greenrouting;
 import static org.locationtech.jts.algorithm.LineIntersector.COLLINEAR_INTERSECTION;
 import static org.locationtech.jts.algorithm.LineIntersector.POINT_INTERSECTION;
 
-import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.geotools.xml.xsi.XSISimpleTypes.Int;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.api.resource.CoordinateArrayListSequence;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.ext.greenrouting.utils.Relation;
 
 public class GreenFeature {
 
     long id;
-    double score;
-    Map<String, Double> variables;
+    double combinedScore;
+    double length;
+    Map<String, Double> scores;
+    Map<String, Boolean> features;
     Geometry geometry;
 
-    GreenFeature(long id, Map<String, Double> variables, Geometry geometry, double score) {
+    GreenFeature(long id, Map<String, Double> scores, Map<String, Boolean> features, Geometry geometry, double combinedScore) {
         this.id = id;
-        this.variables = variables;
+        this.scores = scores;
         this.geometry = geometry;
-        this.score = score;
+        this.combinedScore = combinedScore;
+        this.features = features;
+        this.length = getGeometryLengthMeters(this.geometry);
     }
 
     /**
@@ -67,7 +72,12 @@ public class GreenFeature {
 
         var intersection = featureGeometry.buffer(bufferSize).intersection(geometry);
 
-        return intersection.getLength() > bufferSize;
+        var length = getGeometryLengthMeters(intersection);
+
+        var bufferWidthMeters = getBufferWidthMeters(featureGeometry, bufferSize);
+        var intersectionSizeMeters = getGeometryLengthMeters(intersection);
+
+        return intersectionSizeMeters > bufferWidthMeters;
     }
 
     public double proportion(Geometry geometry, double bufferSize) {
@@ -78,12 +88,12 @@ public class GreenFeature {
 
         var intersection = featureGeometry.buffer(bufferSize).intersection(geometry);
 
+        var intersectionLength = getGeometryLengthMeters(intersection);
         // to get rid of the "extra" length given by the width of the buffer
-        var prop = intersection.getLength();
-        if (intersection.getLength() > featureGeometry.getLength())
-            prop = featureGeometry.getLength();
+        var proportion = Math.min(intersectionLength, this.length);
+        var geometryLength = getGeometryLengthMeters(geometry);
 
-        return geometry.getLength() > 0 ? prop / geometry.getLength() : 0;
+        return geometryLength > 0 ? proportion / geometryLength : 0;
     }
 
     /**
@@ -132,5 +142,24 @@ public class GreenFeature {
         }
 
         return segments;
+    }
+
+    private double getGeometryLengthMeters(Geometry geometry) {
+        Coordinate[] coordinates = geometry.getCoordinates();
+        double d = 0;
+        for (int i = 1; i < coordinates.length; ++i) {
+            d += SphericalDistanceLibrary.distance(coordinates[i - 1], coordinates[i]);
+        }
+        return d;
+    }
+
+    private double getBufferWidthMeters(Geometry geometry, double bufferSize) {
+        var interiorPoint = geometry.getInteriorPoint();
+        var buffer = interiorPoint.buffer(bufferSize);
+        var coordinates = new ArrayList<Coordinate>();
+        coordinates.add(buffer.getCoordinate());
+        coordinates.add(interiorPoint.getCoordinate());
+        var ls = buffer.getFactory().createLineString(new CoordinateArrayListSequence(coordinates));
+        return getGeometryLengthMeters(ls);
     }
 }

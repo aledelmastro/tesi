@@ -27,6 +27,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenFactor;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
 /**
  * https://wiki.openstreetmap.org/wiki/Precision_of_coordinates
  */
-public class GreenRouting implements GraphBuilderModule {
+public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBuilderModule {
 
     private static final String URL_API =
             "https://api.mapbox.com/tilesets/v1/sources/ale-delmastro/green";
@@ -51,10 +52,10 @@ public class GreenRouting implements GraphBuilderModule {
     private static final Logger GREEN_ROUTING_ERROR_LOG = throttle(LOG);
     private final GreenRoutingConfig config;
     private final int nodeMapped;
-    Map<Long, List<GreenFeature>> featuresWithId;
-    Map<Long, List<GreenStreetEdge>> edgesWithId;
-    private ProgressTracker progressTracker;
     private final int nFeaturesMulti = 0;
+    Map<Long, List<GreenFeature>> featuresWithId;
+    Map<Long, List<T>> edgesWithId;
+    private ProgressTracker progressTracker;
 
     public GreenRouting(GreenRoutingConfig config) {
         this.config = config;
@@ -75,7 +76,7 @@ public class GreenRouting implements GraphBuilderModule {
         }
 
         var nStreetEdges = graph.getEdgesOfType(StreetEdge.class).size();
-        var nGreenEdges = graph.getEdgesOfType(GreenStreetEdge.class).size();
+        var nGreenEdges = graph.getEdges().stream().filter(GreenFactor.class::isInstance).count();
         int coverage = nStreetEdges != 0 ? (int) (nGreenEdges / (float) nStreetEdges * 100) : 0;
 
         LOG.info("Green edges are " + nGreenEdges + " (" + coverage + "% of the total).");
@@ -121,11 +122,11 @@ public class GreenRouting implements GraphBuilderModule {
      * @return a map in which the key is a street edge and the value is a list of features whose
      * nearest edge is the key.
      */
-    public Map<GreenStreetEdge, List<GreenFeature>> mapFeaturesToNearestEdge(
+    public Map<T, List<GreenFeature>> mapFeaturesToNearestEdge(
             Map<Long, List<GreenFeature>> featuresWithId,
-            Map<Long, List<GreenStreetEdge>> streetEdgesWithId
+            Map<Long, List<T>> streetEdgesWithId
     ) {
-        Map<GreenStreetEdge, List<GreenFeature>> featuresForEdge = new HashMap<>();
+        Map<T, List<GreenFeature>> featuresForEdge = new HashMap<>();
 
         var sharedIds = featuresWithId.keySet()
                 .stream()
@@ -135,6 +136,9 @@ public class GreenRouting implements GraphBuilderModule {
         progressTracker = track("Map features to street edges", 5000, sharedIds.size());
 
         for (var id : sharedIds) {
+            if (id == 133960538) {
+                int v = 108;
+            }
             var edgesWithId = streetEdgesWithId.get(id);
             for (var feature : featuresWithId.get(id)) {
                 var nearestEdges = edgesWithId.stream()
@@ -142,7 +146,7 @@ public class GreenRouting implements GraphBuilderModule {
                                 streetEdge.getGeometry(), config.getBufferSize()))
                         .collect(Collectors.toList());
 
-                for (GreenStreetEdge edge : nearestEdges) {
+                for (T edge : nearestEdges) {
                     featuresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
                     featuresForEdge.get(edge).add(feature);
                 }
@@ -168,7 +172,7 @@ public class GreenRouting implements GraphBuilderModule {
      * @param id the id for the edges.
      * @return a list of all the edges with the specified id.
      */
-    private List<GreenStreetEdge> greenStreetEdgesForID(long id) {
+    private List<T> greenStreetEdgesForID(long id) {
         return Objects.requireNonNullElse(edgesWithId.get(id), Collections.emptyList());
     }
 
@@ -182,7 +186,12 @@ public class GreenRouting implements GraphBuilderModule {
             this.featuresWithId.put(feature.id, new ArrayList<>());
         }
 
-        this.featuresWithId.get(feature.id).add(feature);
+        /*var present = this.featuresWithId.get(feature.id).stream()
+                .anyMatch(fwi -> fwi.geometry.equalsTopo(feature.geometry));
+        if (!present)*/
+            this.featuresWithId.get(feature.id).add(feature);
+        /*else
+            LOG.info("Masterplannnnn");*/
     }
 
     /**
@@ -197,10 +206,10 @@ public class GreenRouting implements GraphBuilderModule {
                 track("Map features to street edges", 5000, featuresWithId.keySet().size());
 
         for (var id : featuresWithId.keySet()) {
-            var score = featuresWithId.get(id).get(0).score;
+            var score = featuresWithId.get(id).get(0).combinedScore;
             var edgesForID = greenStreetEdgesForID(id);
 
-            for (GreenStreetEdge edge : edgesForID) {edge.setGreenyness(score);}
+            for (T edge : edgesForID) {edge.setGreenyness(score);}
 
             progressTracker.step(m -> LOG.info(m));
         }
@@ -215,30 +224,71 @@ public class GreenRouting implements GraphBuilderModule {
      * This option allows for multiple features (thus multiple scores) for a single id.
      */
     private void weightedAverageMap() {
-        Map<GreenStreetEdge, List<GreenFeature>> closestFeatures =
+        Map<T, List<GreenFeature>> closestFeatures =
                 mapFeaturesToNearestEdge(this.featuresWithId, this.edgesWithId);
 
-        for (GreenStreetEdge edge : closestFeatures.keySet()) {
+        Map<Integer, List<T>> nFeatureForEdge = new HashMap<>();
+        closestFeatures.forEach((greenStreetEdge, greenFeatures) -> {
+            var key = greenFeatures.size();
+            nFeatureForEdge.putIfAbsent(key, new ArrayList<>());
+            nFeatureForEdge.get(key).add(greenStreetEdge);
+        });
+
+        progressTracker = track("Computing scores", 5000, closestFeatures.keySet().size());
+
+        for (T edge : closestFeatures.keySet()) {
+            if (edge.wayId == 133960538) {
+                int v = 108;
+            }
             var totalLength = closestFeatures.get(edge)
                     .stream()
                     .mapToDouble(segment -> segment.geometry.getLength())
                     .sum();
 
+            if (edge.wayId == 178459983) {
+                int afdseilhju=1;
+            }
+
             edge.setGreenyness(
                     closestFeatures.get(edge)
                             .stream()
-                            .mapToDouble(feature -> feature.score * feature.proportion(edge.getGeometry(), config.getBufferSize()))
+                            .mapToDouble(feature -> feature.combinedScore * feature.proportion(
+                                    edge.getGeometry(), config.getBufferSize()))
                             .sum()
             );
 
             config.getProperties().forEach(variable -> {
-                edge.putVariable(variable, closestFeatures.get(edge)
+                var value = closestFeatures.get(edge)
                         .stream()
-                        .mapToDouble(feature -> feature.variables.get(variable)
+                        .mapToDouble(feature -> feature.scores.get(variable)
                                 * feature.proportion(edge.getGeometry(), config.getBufferSize()))
-                        .sum());
+                        .sum();
+
+                if (value > 1 || value < 0) {
+                    int i = 1;
+                }
+
+                if (value > 3) {
+                    int i = 1;
+                }
+                edge.putScore(variable, value);
             });
+
+            config.getFeatures().forEach(variable -> {
+                var value = closestFeatures.get(edge)
+                        .stream()
+                        .anyMatch(feature -> feature.features.getOrDefault(variable, false));
+
+                if (value) {
+                    int afdskhjl = 0;
+                }
+                edge.putFeature(variable, value);
+            });
+
+            progressTracker.step(m -> LOG.info(m));
         }
+
+        LOG.info(progressTracker.completeMessage());
     }
 
     /**
@@ -253,15 +303,22 @@ public class GreenRouting implements GraphBuilderModule {
         var expression = config.getExpression();
 
         var variables = new HashMap<String, Double>();
-        config.getProperties().forEach(variable -> {
-            var value = ((Number) feature.getAttribute(variable)).doubleValue();
-            variables.put(variable, value);
-            expression.setVariable(variable, value);
+        config.getProperties().forEach(prop -> {
+            var value = ((Number) feature.getAttribute(prop)).doubleValue();
+            variables.put(prop, value);
+            expression.setVariable(prop, value);
         });
-        var score = expression.evaluate();
+
+        var features = new HashMap<String, Boolean>();
+        config.getFeatures().forEach(feat -> {
+            var value = ((Number) feature.getAttribute(feat)).doubleValue() == 1;
+            features.put(feat, value);
+        });
+
+        var combinedScore = expression.evaluate();
 
         Geometry geometry = (LineString) feature.getDefaultGeometryProperty().getValue();
-        return new GreenFeature(id, variables, geometry, score);
+        return new GreenFeature(id, variables, features, geometry, combinedScore);
     }
 
     /**
@@ -273,13 +330,17 @@ public class GreenRouting implements GraphBuilderModule {
      * corresponding GreenStreetEdge.
      * @see GreenStreetEdge
      */
-    private Map<Long, List<GreenStreetEdge>> getStreetEdges(Graph graph) {
-        Map<Long, List<GreenStreetEdge>> edgesWithId = new HashMap<>();
+    private Map<Long, List<T>> getStreetEdges(Graph graph) {
+        Map<Long, List<T>> edgesWithId = new HashMap<>();
 
-        graph.getEdgesOfType(GreenStreetEdge.class).forEach(edge -> {
-            edgesWithId.computeIfAbsent(edge.wayId, id -> new ArrayList<>());
-            edgesWithId.get(edge.wayId).add(edge);
-        });
+        graph.getEdgesOfType(StreetEdge.class)
+                .stream()
+                .filter(GreenFactor.class::isInstance)
+                .map(e -> (T) e)
+                .forEach(edge -> {
+                    edgesWithId.computeIfAbsent(edge.wayId, id -> new ArrayList<>());
+                    edgesWithId.get(edge.wayId).add(edge);
+                });
 
         return edgesWithId;
     }
@@ -309,16 +370,31 @@ public class GreenRouting implements GraphBuilderModule {
         return featureCollection;
     }
 
-    private void uploadTiles(Graph graph) {
+    public void uploadTiles(Graph graph) {
         LOG.info("Generating LDGeojson...");
-        var features = graph.getEdgesOfType(GreenStreetEdge.class)
+        var features = graph.getEdgesOfType(StreetEdge.class)
                 .stream()
+                .filter(GreenFactor.class::isInstance)
+                .map(e -> toFeature(e).toJson())
+                .collect(Collectors.toList());
+
+        var nonGreen = graph.getEdgesOfType(StreetEdge.class)
+                .stream()
+                .filter(e -> !(e instanceof GreenStreetEdge))
                 .map(e -> toFeature(e).toJson())
                 .collect(Collectors.toList());
 
         LOG.info("Write LDGeojson on file.");
+
         try (PrintWriter pw = new PrintWriter(config.getOutputFileName())) {
             features.forEach(f -> pw.println(f));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (PrintWriter pw = new PrintWriter("nonGreen.json")) {
+            nonGreen.forEach(ng -> pw.println(ng));
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -336,15 +412,23 @@ public class GreenRouting implements GraphBuilderModule {
         }*/
     }
 
-    private Feature toFeature(GreenStreetEdge edge) {
+    private Feature toFeature(StreetEdge edge) {
         var points = Arrays.stream(edge.getGeometry().getCoordinates())
                 .map(p -> Point.fromLngLat(p.x, p.y))
                 .collect(Collectors.toList());
 
         var feature = Feature.fromGeometry(com.mapbox.geojson.LineString.fromLngLats(points));
-        var params = edge.getVariables().keySet();
-        params.forEach(p -> feature.addNumberProperty(p, edge.getVariables().get(p)));
-        feature.addNumberProperty("score", edge.getGreenyness());
+        feature.addNumberProperty("osm_id", edge.wayId);
+
+        if (edge instanceof GreenFactor) {
+            var gEdge = (GreenFactor) edge;
+            feature.addNumberProperty("score", gEdge.getGreenyness());
+            /*var scores = gEdge.getScores().keySet();
+            scores.forEach(p -> feature.addNumberProperty(p, gEdge.getScores().get(p)));
+
+            var features = gEdge.getFeatures().keySet();
+            features.forEach(p -> feature.addNumberProperty(p, gEdge.getFeatures().get(p) ? 1 : 0));*/
+        }
 
         return feature;
     }

@@ -254,7 +254,7 @@ public class GraphBuilder implements Runnable {
         }
 
         if (OTPFeature.GreenRouting.isOn()) {
-            graphBuilder.addModule(new GreenRouting(config.greenRouting));
+            graphBuilder.addModule(new GreenRouting<>(config.greenRouting));
         }
 
         return graphBuilder;

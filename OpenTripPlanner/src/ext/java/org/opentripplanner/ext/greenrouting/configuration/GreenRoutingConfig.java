@@ -10,25 +10,34 @@ public class GreenRoutingConfig {
     private final String id;
     private final double bufferSize;
     private final Set<String> properties;
+
+    private final Set<String> features;
+
     private final GreenMappingMode mode;
     private final Expression expression;
     private final String outputFileName;
+
+    private final String logFileName;
 
     public GreenRoutingConfig(
             String fileName,
             String id,
             double bufferSize,
             Set<String> vars,
+            Set<String> features,
             GreenMappingMode mode,
             String formula,
-            String outputFileName
+            String outputFileName,
+            String logFileName
     ) {
         this.fileName = fileName;
         this.id = id;
         this.bufferSize = bufferSize;
         this.properties = vars;
+        this.features = features;
         this.mode = mode;
         this.outputFileName = outputFileName;
+        this.logFileName = logFileName;
 
         this.expression = new ExpressionBuilder(formula).variables(properties).build();
     }
@@ -53,8 +62,16 @@ public class GreenRoutingConfig {
         return properties;
     }
 
+    public Set<String> getFeatures() {
+        return features;
+    }
+
     public String getFileName() {
         return fileName;
+    }
+
+    public String getLogFileName() {
+        return logFileName;
     }
 
     public boolean fastMapping() {

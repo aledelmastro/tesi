@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -32,6 +33,8 @@ import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.api.parameter.MIMEImageFormat;
 import org.opentripplanner.common.geometry.MapTile;
 import org.opentripplanner.common.geometry.WebMercatorTile;
+import org.opentripplanner.ext.greenrouting.GreenRouting;
+import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
 import org.opentripplanner.inspector.TileRenderer;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -131,7 +134,7 @@ public class GraphInspectorTileResource {
 
         Router router = otpServer.getRouter();
         var variables =
-                router.graph.getEdgesOfType(GreenStreetEdge.class).get(0).getVariables().keySet();
+                router.graph.getEdgesOfType(GreenStreetEdge.class).get(0).getScores().keySet();
         return new JSONObject(Map.of("variables", new ArrayList<>(variables))).toJSONString();
     }
 
@@ -220,8 +223,9 @@ public class GraphInspectorTileResource {
 
     private Feature toFeature(GreenStreetEdge edge, Collection<String> params) {
         var feature = this.toFeature(edge);
-        params.forEach(p -> feature.addNumberProperty(p, edge.getVariables().get(p)));
+        feature.addNumberProperty("osm_id", edge.wayId);
         feature.addNumberProperty("score", edge.getGreenyness());
+        params.forEach(p -> feature.addNumberProperty(p, edge.getScores().get(p)));
 
         return feature;
     }
@@ -286,7 +290,7 @@ public class GraphInspectorTileResource {
                 .filter(e -> e instanceof GreenStreetEdge)
                 .map(e -> toFeature(
                         e.getGeometry(),
-                        ((GreenStreetEdge) e).getVariables().getOrDefault(feature, 0d)
+                        ((GreenStreetEdge) e).getScores().getOrDefault(feature, 0d)
                 ))
                 .collect(Collectors.toList());
 
@@ -331,10 +335,24 @@ public class GraphInspectorTileResource {
     // Da ripensare
     private Collection<String> getProps() {
         var router = this.otpServer.getRouter();
-        var props = new HashSet<>(
-                router.graph.getEdgesOfType(GreenStreetEdge.class).stream().filter(e -> e.getVariables().size() > 0).findFirst().get().getVariables().keySet());
+        var props = router.graph.getEdgesOfType(GreenStreetEdge.class)
+                .stream()
+                .map(e -> e.getScores().keySet())
+                .filter(set -> set.size() > 0)
+                .findFirst()
+                .orElseGet(HashSet::new);
+
+        var feat = router.graph.getEdgesOfType(GreenStreetEdge.class)
+                .stream()
+                .map(e -> e.getFeatures().keySet())
+                .filter(set -> set.size() > 0)
+                .findFirst()
+                .orElseGet(HashSet::new);
+
+        var l = new ArrayList<>(props);
+        l.addAll(feat);
         /*props.add("score");*/
-        return props;
+        return l;
     }
 
     @GET
@@ -410,4 +428,14 @@ public class GraphInspectorTileResource {
         return Feature.fromGeometry(LineString.fromLngLats(points));
         //return o;
     }
+
+    @POST
+    @Path("/ld")
+    @Produces(MediaType.APPLICATION_JSON)
+    public void createTiles() {
+        var c = new GreenRoutingConfig(null, null,0,Set.of(),Set.of(),"3","data/LDGeojson_API.json", "l.txt");
+        var g = new GreenRouting<>(c);
+        g.writeFiles(otpServer.getRouter().graph);
+    }
+
 }

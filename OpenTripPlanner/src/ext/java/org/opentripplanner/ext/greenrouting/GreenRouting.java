@@ -42,8 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBuilderModule {
 
-    private static final String URL_API =
-            "https://api.mapbox.com/tilesets/v1/sources/ale-delmastro/green";
     private static final Logger LOG = LoggerFactory.getLogger(GreenRouting.class);
     /**
      * Wrap LOG with a Throttle logger errors, this will prevent thousands of log events, and just
@@ -51,17 +49,25 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
      */
     private static final Logger GREEN_ROUTING_ERROR_LOG = throttle(LOG);
     private final GreenRoutingConfig config;
-    private final int nodeMapped;
-    private final int nFeaturesMulti = 0;
     Map<Long, List<GreenFeature>> featuresWithId;
     Map<Long, List<T>> edgesWithId;
     private ProgressTracker progressTracker;
+
+    private int edgesMapped = 0;
+    private int featuresMapped = 0;
+    private int edgesWithFeatures = 0;
+    private int edgesWithoutFeatures = 0;
+    private int featuresWithoutEdges = 0;
+    private int nFeatures = 0;
+    private long nGreenEdges = 0;
+    private int nStreetEdges = 0;
+    private double coverage = 0;
+    private Map<Integer, List<T>> nFeaturesForEdge = new HashMap<>();
 
     public GreenRouting(GreenRoutingConfig config) {
         this.config = config;
         this.featuresWithId = new HashMap<>();
         this.edgesWithId = new HashMap<>();
-        this.nodeMapped = 0;
     }
 
     @Override
@@ -75,9 +81,9 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             return;
         }
 
-        var nStreetEdges = graph.getEdgesOfType(StreetEdge.class).size();
-        var nGreenEdges = graph.getEdges().stream().filter(GreenFactor.class::isInstance).count();
-        int coverage = nStreetEdges != 0 ? (int) (nGreenEdges / (float) nStreetEdges * 100) : 0;
+        this.nStreetEdges = graph.getEdgesOfType(StreetEdge.class).size();
+        this.nGreenEdges = graph.getEdges().stream().filter(GreenFactor.class::isInstance).count();
+        this.coverage = nStreetEdges != 0 ? (int) (nGreenEdges / (float) nStreetEdges * 100) : -1;
 
         LOG.info("Green edges are " + nGreenEdges + " (" + coverage + "% of the total).");
 
@@ -86,22 +92,21 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             this.edgesWithId = getStreetEdges(graph);
 
             LOG.info("Collecting features...");
-            var nFeatures = 0;
 
             try (SimpleFeatureIterator it = featureCollection.get().features()) {
                 while (it.hasNext()) {
                     addFeature(parseFeature(it.next()));
-                    nFeatures++;
+                    this.nFeatures++;
                 }
             }
-            LOG.info("Total features: " + nFeatures);
+            LOG.info("Total features: " + this.nFeatures);
+
+            this.featuresWithoutEdges = this.nFeatures;
+            this.featuresMapped = 0;
 
             weightedAverageMap();
 
-            this.uploadTiles(graph);
-
-            // TODO  aggiungere info sui nodi mappati
-
+            this.writeFiles(graph);
         }
     }
 
@@ -129,14 +134,15 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
         var sharedIds = featuresWithId.keySet()
                 .stream()
                 .filter(k -> streetEdgesWithId.containsKey(k))
+                .peek(k -> {
+                    this.edgesWithFeatures += streetEdgesWithId.getOrDefault(k, List.of()).size();
+                    this.featuresWithoutEdges -= this.featuresWithId.getOrDefault(k, List.of()).size();
+                })
                 .collect(Collectors.toList());
 
         progressTracker = track("Map features to street edges", 5000, sharedIds.size());
 
         for (var id : sharedIds) {
-            if (id == 133960538) {
-                int v = 108;
-            }
             var edgesWithId = streetEdgesWithId.get(id);
             for (var feature : featuresWithId.get(id)) {
                 var nearestEdges = edgesWithId.stream()
@@ -144,34 +150,23 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
                                 streetEdge.getGeometry(), config.getBufferSize()))
                         .collect(Collectors.toList());
 
+                if (!nearestEdges.isEmpty()) {
+                    this.featuresMapped++;
+                }
+
                 for (T edge : nearestEdges) {
                     featuresForEdge.computeIfAbsent(edge, key -> new ArrayList<>());
                     featuresForEdge.get(edge).add(feature);
                 }
 
             }
+
             progressTracker.step(m -> LOG.info(m));
         }
 
         LOG.info(progressTracker.completeMessage());
-        /*LOG.info("Couldn't find a valid edge for " + (
-                featuresWithId.keySet().size() - sharedIds.size()
-        ) + " features.");
-        LOG.info("Couldn't find a feature for " + (
-                featuresWithId.keySet().size() - sharedIds.size()
-        ) + " features.");*/
 
         return featuresForEdge;
-    }
-
-    /**
-     * Returns all the instances of {@link GreenStreetEdge} with the specified id.
-     *
-     * @param id the id for the edges.
-     * @return a list of all the edges with the specified id.
-     */
-    private List<T> greenStreetEdgesForID(long id) {
-        return Objects.requireNonNullElse(edgesWithId.get(id), Collections.emptyList());
     }
 
     /**
@@ -184,12 +179,7 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             this.featuresWithId.put(feature.id, new ArrayList<>());
         }
 
-        /*var present = this.featuresWithId.get(feature.id).stream()
-                .anyMatch(fwi -> fwi.geometry.equalsTopo(feature.geometry));
-        if (!present)*/
-            this.featuresWithId.get(feature.id).add(feature);
-        /*else
-            LOG.info("Masterplannnnn");*/
+        this.featuresWithId.get(feature.id).add(feature);
     }
 
     /**
@@ -202,61 +192,50 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
         Map<T, List<GreenFeature>> closestFeatures =
                 mapFeaturesToNearestEdge(this.featuresWithId, this.edgesWithId);
 
-        Map<Integer, List<T>> nFeatureForEdge = new HashMap<>();
         closestFeatures.forEach((greenStreetEdge, greenFeatures) -> {
             var key = greenFeatures.size();
-            nFeatureForEdge.putIfAbsent(key, new ArrayList<>());
-            nFeatureForEdge.get(key).add(greenStreetEdge);
+            nFeaturesForEdge.putIfAbsent(key, new ArrayList<>());
+            nFeaturesForEdge.get(key).add(greenStreetEdge);
         });
 
         progressTracker = track("Computing scores", 5000, closestFeatures.keySet().size());
 
         for (T edge : closestFeatures.keySet()) {
-            if (edge.wayId == 133960538) {
-                int v = 108;
-            }
-            var totalLength = closestFeatures.get(edge)
+            // For debug reasons
+            this.edgesMapped++;
+
+            var intersectionSizes = closestFeatures.get(edge)
                     .stream()
-                    .mapToDouble(segment -> segment.geometry.getLength())
-                    .sum();
+                    .map(feature -> feature.intersectionSize(edge.getGeometry(),
+                            config.getBufferSize()))
+                    .collect(Collectors.toList());
 
-            if (edge.wayId == 178459983) {
-                int afdseilhju=1;
+            var features = closestFeatures.get(edge);
+
+            var totalIntersectionSize = 0d;
+            for (double is : intersectionSizes) {totalIntersectionSize += is;}
+
+            var combinedScore = 0d;
+            for (int i = 0; i < features.size(); i++) {
+                combinedScore += features.get(i).combinedScore * intersectionSizes.get(i);
             }
+            edge.setGreenyness(combinedScore / totalIntersectionSize);
 
-            edge.setGreenyness(
-                    closestFeatures.get(edge)
-                            .stream()
-                            .mapToDouble(feature -> feature.combinedScore * feature.proportion(
-                                    edge.getGeometry(), config.getBufferSize()))
-                            .sum()
-            );
-
-            config.getProperties().forEach(variable -> {
-                var value = closestFeatures.get(edge)
-                        .stream()
-                        .mapToDouble(feature -> feature.scores.get(variable)
-                                * feature.proportion(edge.getGeometry(), config.getBufferSize()))
-                        .sum();
-
-                if (value > 1 || value < 0) {
-                    int i = 1;
+            var properties = new ArrayList<>(config.getProperties());
+            for (var prop: properties) {
+                var value = 0d;
+                for (int i=0; i < features.size(); i++) {
+                    value += features.get(i).scores.get(prop) * intersectionSizes.get(i);
                 }
-
-                if (value > 3) {
-                    int i = 1;
-                }
-                edge.putScore(variable, value);
-            });
+                value /= totalIntersectionSize;
+                edge.putScore(prop, value);
+            }
 
             config.getFeatures().forEach(variable -> {
                 var value = closestFeatures.get(edge)
                         .stream()
                         .anyMatch(feature -> feature.features.getOrDefault(variable, false));
 
-                if (value) {
-                    int afdskhjl = 0;
-                }
                 edge.putFeature(variable, value);
             });
 
@@ -345,7 +324,7 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
         return featureCollection;
     }
 
-    public void uploadTiles(Graph graph) {
+    public void writeFiles(Graph graph) {
         LOG.info("Generating LDGeojson...");
         var features = graph.getEdgesOfType(StreetEdge.class)
                 .stream()
@@ -375,6 +354,22 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
             e.printStackTrace();
         }
 
+        try (PrintWriter pw = new PrintWriter(config.getLogFileName())) {
+            pw.println("Buffer size: " + config.getBufferSize());
+            pw.println("Edges with at least one corresponding feature: " + this.edgesWithFeatures);
+            pw.println("Edges without at least one corresponding feature: " + (this.nStreetEdges-this.edgesWithFeatures));
+            pw.println("Features without corresponding edges: " + this.featuresWithoutEdges);
+            pw.println("Edges successfully mapped: " + this.edgesMapped);
+            pw.println("Features successfully mapped: " + this.featuresMapped);
+            pw.println("Total number of features: " + this.nFeatures);
+            pw.println("Total number of edges: " + this.nStreetEdges);
+            pw.println("Total number of green edges: " + this.nGreenEdges);
+            pw.println("Total number of green edges: " + this.nGreenEdges + " (" + coverage + "% of total).");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
         /*try {
             URL url = new URL(URL_API);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -398,11 +393,11 @@ public class GreenRouting<T extends StreetEdge & GreenFactor> implements GraphBu
         if (edge instanceof GreenFactor) {
             var gEdge = (GreenFactor) edge;
             feature.addNumberProperty("score", gEdge.getGreenyness());
-            /*var scores = gEdge.getScores().keySet();
+            var scores = gEdge.getScores().keySet();
             scores.forEach(p -> feature.addNumberProperty(p, gEdge.getScores().get(p)));
 
             var features = gEdge.getFeatures().keySet();
-            features.forEach(p -> feature.addNumberProperty(p, gEdge.getFeatures().get(p) ? 1 : 0));*/
+            features.forEach(p -> feature.addNumberProperty(p, gEdge.getFeatures().get(p) ? 1 : 0));
         }
 
         return feature;

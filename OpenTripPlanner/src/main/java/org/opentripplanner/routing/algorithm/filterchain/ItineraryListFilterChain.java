@@ -65,4 +65,8 @@ public class ItineraryListFilterChain {
     public List<RoutingError> getRoutingErrors() {
         return routingErrors;
     }
+
+    public List<ItineraryListFilter> getFilters() {
+        return this.filters;
+    }
 }

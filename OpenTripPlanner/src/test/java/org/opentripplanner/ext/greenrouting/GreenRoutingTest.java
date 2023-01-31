@@ -1,29 +1,24 @@
-/*
 package org.opentripplanner.ext.greenrouting;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
 import org.mockito.Mockito;
 import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig;
-import org.opentripplanner.ext.greenrouting.configuration.GreenRoutingConfig.GreenMappingMode;
 import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
-import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.ext.greenrouting.routing.algorithm.filterchain.deletionflagger.AllTrueFilter;
+import org.opentripplanner.ext.greenrouting.routing.algorithm.filterchain.deletionflagger.AtLeastOneTrueFilter;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
-import org.opentripplanner.routing.vertextype.SimpleVertex;
 
 public class GreenRoutingTest {
 
@@ -51,11 +46,11 @@ public class GreenRoutingTest {
         var geometryFactory = new GeometryFactory();
 
         LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                new Coordinate(0, 0), new Coordinate(5, 0)
+                new Coordinate(45.0684,7.6691), new Coordinate(45.0684,7.6691)
         });
 
         LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                new Coordinate(0, 0), new Coordinate(1, -1)
+                new Coordinate(45.0683,7.6692), new Coordinate(45.0684,7.6692)
         });
 
         var feature = greenFeature(ls1);
@@ -64,61 +59,11 @@ public class GreenRoutingTest {
     }
 
     @Test
-    public void getDistanceTest_OneOneTheOther() {
-        var ls = getLineStringsOneOnTheOther();
-        var feature = greenFeature(ls[0]);
-
-        assertEquals(0, feature.getDistance(ls[1]), 0);
-    }
-
-    @Test
-    public void getDistanceTest_Overlap() {
-        var ls = getOverlappedLineStrings();
-        var feature = greenFeature(ls[0]);
-
-        assertEquals(0, feature.getDistance(ls[1]), 0);
-    }
-
-    @Test
-    public void getDistanceTest_InternalIntersection() {
-        var ls = getIncidentLineStrings();
-        var feature = greenFeature(ls[0]);
-
-        assertEquals(0, feature.getDistance(ls[1]), 0);
-    }
-
-    @Test
-    public void getDistanceTest_ExtremityIntersection() {
-        var geometryFactory = new GeometryFactory();
-
-        LineString ls1 = geometryFactory.createLineString(new Coordinate[]{
-                new Coordinate(0, 0), new Coordinate(5, 0)
-        });
-
-        LineString ls2 = geometryFactory.createLineString(new Coordinate[]{
-                new Coordinate(0, 0), new Coordinate(1, -1)
-        });
-
-        var feature = greenFeature(ls1);
-        assertTrue(feature.getDistance(ls2) > 0);
-    }
-
-    @Test
-    public void getDistanceTest_ArgsDifferentThanLineString() {
-        var geometryFactory = new GeometryFactory();
-
-        Point p = geometryFactory.createPoint();
-        var feature = greenFeature(geometryFactory.createLineString());
-
-        assertThrows(IllegalArgumentException.class, () -> feature.getDistance(p));
-    }
-
-    @Test
     public void mapToClosestEdgeTest() {
         var bufferSize = 1.0;
         GreenRoutingConfig grc = Mockito.mock(GreenRoutingConfig.class);
         Mockito.when(grc.getBufferSize()).thenReturn(bufferSize);
-        var gr = new GreenRouting(grc);
+        var gr = new GreenRouting<GreenStreetEdge>(grc);
         var id = 1L;
 
         var ls1 = lineString(0, 0, 5, 0);
@@ -153,14 +98,17 @@ public class GreenRoutingTest {
         assertTrue(mapping.get(e2).contains(gs2));
     }
 
-    @Test
+    /*@Test
     public void averageMapTest() {
-        var gr = new GreenRouting(
-                new GreenRoutingConfig("test/green-test/green.json", "id", 0.1,
+        var gr = new GreenRouting<>(
+                new GreenRoutingConfig("test/green-test/green.json",
+                        "id",
+                        0.1,
                         Set.of("score1", "score2"),
                         Set.of(),
-                        GreenMappingMode.AVERAGE, "score1+score2",
-                        "test/green-test/out.json"
+                        "score1",
+                        "test/green-test/out.json",
+                        "test/green-test/log.txt"
                 ));
         var id = 1L;
 
@@ -175,12 +123,56 @@ public class GreenRoutingTest {
         gr.buildGraph(g, null, null);
 
         assertEquals(5, s.getGreenyness(), 0);
+    }*/
+
+    @Test
+    public void AtLeastOneTrueFilterTest() {
+        var feature1 = "f1";
+        var feature2 = "f2";
+
+        var map1 = new HashMap<String, Boolean>();
+        map1.put(feature1, true);
+        map1.put(feature2, false);
+
+        var map2 = new HashMap<String, Boolean>();
+        map2.put(feature1, false);
+        map2.put(feature2, false);
+
+        List<Map<String, Boolean>> itin = List.of(map1, map2);
+
+        var filter = new AtLeastOneTrueFilter<Map<String, Boolean>>(m -> m.get(feature1));
+        assertTrue(filter.filter(itin));
+
+        filter = new AtLeastOneTrueFilter<>(m -> m.get(feature2));
+        assertFalse(filter.filter(itin));
+    }
+
+    @Test
+    public void AllTrueFilterTest() {
+        var feature1 = "f1";
+        var feature2 = "f2";
+
+        var map1 = new HashMap<String, Boolean>();
+        map1.put(feature1, true);
+        map1.put(feature2, true);
+
+        var map2 = new HashMap<String, Boolean>();
+        map2.put(feature1, true);
+        map2.put(feature2, false);
+
+        List<Map<String, Boolean>> itin = List.of(map1, map2);
+
+        var filter = new AllTrueFilter<Map<String, Boolean>>(m -> m.get(feature1));
+        assertTrue(filter.filter(itin));
+
+        filter = new AllTrueFilter<>(m -> m.get(feature2));
+        assertFalse(filter.filter(itin));
     }
 
     private GreenRouting getDefaultGreenRouting() {
         GreenRoutingConfig grc = Mockito.mock(GreenRoutingConfig.class);
         Mockito.when(grc.getBufferSize()).thenReturn(0.1);
-        return new GreenRouting(grc);
+        return new GreenRouting<>(grc);
     }
 
     private LineString[] getIncidentLineStrings() {
@@ -265,4 +257,3 @@ public class GreenRoutingTest {
 
 
 }
-*/

@@ -50,6 +50,12 @@ public class RoutingRequestToFilterChainMapper {
       builder.withMaxNumberOfItinerariesCrop(ListSection.HEAD);
     }
 
+    if (!params.numberParams.isEmpty())
+      builder.withFilterScores(params.numberParams);
+
+    if (!params.booleanParams.isEmpty())
+      builder.withFilterFeatures(params.booleanParams);
+
     builder
         .withMaxNumberOfItineraries(Math.min(maxNumOfItineraries, MAX_NUMBER_OF_ITINERARIES))
         .withTransitGeneralizedCostLimit(params.transitGeneralizedCostLimit)

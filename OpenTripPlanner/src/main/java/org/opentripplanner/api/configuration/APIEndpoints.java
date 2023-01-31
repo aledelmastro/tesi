@@ -5,6 +5,7 @@ import static org.opentripplanner.util.OTPFeature.APIGraphInspectorTile;
 import static org.opentripplanner.util.OTPFeature.APIServerInfo;
 import static org.opentripplanner.util.OTPFeature.APIUpdaterStatus;
 import static org.opentripplanner.util.OTPFeature.ActuatorAPI;
+import static org.opentripplanner.util.OTPFeature.GreenRouting;
 import static org.opentripplanner.util.OTPFeature.ReportApi;
 import static org.opentripplanner.util.OTPFeature.SandboxAPILegacyGraphQLApi;
 import static org.opentripplanner.util.OTPFeature.SandboxAPIMapboxVectorTilesApi;
@@ -23,6 +24,7 @@ import org.opentripplanner.api.resource.Routers;
 import org.opentripplanner.api.resource.ServerInfo;
 import org.opentripplanner.api.resource.UpdaterStatusResource;
 import org.opentripplanner.ext.examples.statistics.api.resource.GraphStatisticsResource;
+import org.opentripplanner.ext.greenrouting.api.resource.GreenPlannerResource;
 import org.opentripplanner.ext.legacygraphqlapi.LegacyGraphQLAPI;
 import org.opentripplanner.ext.parkAndRideApi.ParkAndRideResource;
 import org.opentripplanner.ext.actuator.ActuatorAPI;
@@ -42,8 +44,16 @@ public class APIEndpoints {
     private APIEndpoints() {
         // Add mandatory APIs
         add(Routers.class);
-        add(PlannerResource.class);
+        /*add(PlannerResource.class);*/
         add(IndexAPI.class);
+
+        // GreenRouting
+        if (GreenRouting.isOn()) {
+            add(GreenPlannerResource.class);
+        }
+        else {
+            add(PlannerResource.class);
+        }
 
         // Add feature enabled APIs, these can be enabled by default, some is not.
         // See the OTPFeature enum for details.

@@ -20,9 +20,9 @@ This API produces [Mapbox vector tiles](https://docs.mapbox.com/vector-tiles/ref
 The tiles can be fetched from `/otp/routers/{routerId}/vectorTiles/{layers}/{z}/{x}/{y}.pbf`, where `layers` is a comma separated list of layer names from the configuration.
 
 ### Configuration
-To enable this you need to add the feature `SandboxAPIMapboxVectorTilesApi` in `otp-config.json`.
+To enable this you need to add the featureDescription `SandboxAPIMapboxVectorTilesApi` in `otp-config.json`.
 
-The feature must be configured in `router-config.json` as follows
+The featureDescription must be configured in `router-config.json` as follows
  
 ```
 {

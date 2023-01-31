@@ -8,6 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
 import java.util.stream.Collectors;
 
+import org.opentripplanner.ext.greenrouting.api.resource.filters.FeatureDescription;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.ScoreDescription;
+import org.opentripplanner.ext.greenrouting.routing.algorithm.filterchain.deletionflagger.GreenFeatureFilterBuilder;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.SortOrder;
 import org.opentripplanner.routing.algorithm.filterchain.comparator.SortOrderComparator;
@@ -51,10 +54,22 @@ public class ItineraryListFilterChainBuilder {
     private Instant latestDepartureTimeLimit = null;
     private Consumer<Itinerary> maxLimitReachedSubscriber;
 
+    public List<FeatureDescription> filterFeatureDescriptions = new ArrayList<>();
+    public List<ScoreDescription> filterScoreDescriptions = new ArrayList<>();
+
     public ItineraryListFilterChainBuilder(SortOrder sortOrder) {
         this.sortOrder = sortOrder;
     }
 
+    public ItineraryListFilterChainBuilder withFilterScores(List<ScoreDescription> filterScoreDescriptions) {
+        this.filterScoreDescriptions = filterScoreDescriptions;
+        return this;
+    }
+
+    public ItineraryListFilterChainBuilder withFilterFeatures(List<FeatureDescription> filterFeatureDescriptions) {
+        this.filterFeatureDescriptions = filterFeatureDescriptions;
+        return this;
+    }
 
     /**
      * The maximum number of itineraries returned. This will remove all itineraries at the
@@ -253,6 +268,14 @@ public class ItineraryListFilterChainBuilder {
 
             if (parkAndRideDurationRatio > 0) {
                 filters.add(new DeletionFlaggingFilter(new RemoveParkAndRideWithMostlyWalkingFilter(parkAndRideDurationRatio)));
+            }
+
+            if (!this.filterFeatureDescriptions.isEmpty() || !this.filterScoreDescriptions.isEmpty()) {
+                var builder = new GreenFeatureFilterBuilder();
+                filterFeatureDescriptions.forEach(builder::withBooleanFilter);
+                filterScoreDescriptions.forEach(builder::withNumberFilter);
+
+                filters.add(new DeletionFlaggingFilter(builder.build()));
             }
         }
 

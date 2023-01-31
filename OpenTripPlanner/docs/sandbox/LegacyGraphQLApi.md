@@ -49,7 +49,7 @@ on this API and the [Legacy GraphQL Api](LegacyGraphQLApi.md). The new API will 
 "translations": A GTFS version and a Transmodel version, we will try to keep the semantics the same.  
 
 ### Configuration
-To enable this you need to add the feature `SandboxAPILegacyGraphQLApi`.
+To enable this you need to add the featureDescription `SandboxAPILegacyGraphQLApi`.
  
 ```
 // otp-config.json

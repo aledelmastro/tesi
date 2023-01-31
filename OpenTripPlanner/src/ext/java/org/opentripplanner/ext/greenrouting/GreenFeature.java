@@ -45,6 +45,17 @@ public class GreenFeature {
         return intersectionSizeMeters > bufferWidthMeters;
     }
 
+    public double intersectionSize (Geometry geometry, double bufferSize) {
+        Geometry featureGeometry = this.geometry;
+        if (!(geometry instanceof LineString) || !(featureGeometry instanceof LineString)) {
+            throw new IllegalArgumentException("Geometry is not a line string.");
+        }
+
+        var intersection = featureGeometry.buffer(bufferSize).intersection(geometry);
+
+        return getGeometryLengthMeters(intersection);
+    }
+
     public double proportion(Geometry geometry, double bufferSize) {
         Geometry featureGeometry = this.geometry;
         if (!(geometry instanceof LineString) || !(featureGeometry instanceof LineString)) {

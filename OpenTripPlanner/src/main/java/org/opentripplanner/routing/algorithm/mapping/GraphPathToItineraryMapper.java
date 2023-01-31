@@ -14,6 +14,9 @@ import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.common.geometry.PackedCoordinateSequence;
 import org.opentripplanner.ext.flex.FlexibleTransitLeg;
 import org.opentripplanner.ext.flex.edgetype.FlexTripEdge;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenFactor;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenStreetEdge;
+import org.opentripplanner.ext.greenrouting.model.plan.GreenStreetLeg;
 import org.opentripplanner.model.StreetNote;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Leg;
@@ -245,7 +248,7 @@ public abstract class GraphPathToItineraryMapper {
                 previousStateIsVehicleParking ? firstState.getBackState() : firstState
         );
 
-        StreetLeg leg = new StreetLeg(
+        GreenStreetLeg leg = new GreenStreetLeg(
                 resolveMode(states),
                 startTime,
                 makeCalendar(lastState),
@@ -256,6 +259,18 @@ public abstract class GraphPathToItineraryMapper {
                 geometry,
                 walkSteps
         );
+
+        // TODO è ancora necessario? Tutti gli archi sono green
+        leg.setNumerical(edges.stream()
+                .filter(e -> e instanceof GreenFactor)
+                .map(e -> ((GreenFactor) e).getScores())
+                .collect(Collectors.toList()));
+
+        leg.setBoolean(edges.stream()
+                .filter(e -> e instanceof GreenFactor)
+                .map(e -> ((GreenFactor) e).getFeatures())
+                .collect(Collectors.toList()));
+
 
         leg.setRentedVehicle(firstState.isRentingVehicle());
         leg.setWalkingBike(false);

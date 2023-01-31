@@ -1,7 +1,11 @@
 package org.opentripplanner.routing.api.request;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.DoubleFunction;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.FeatureDescription;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.ScoreDescription;
 import org.opentripplanner.routing.algorithm.filterchain.ItineraryListFilterChainBuilder;
 
 /**
@@ -9,9 +13,8 @@ import org.opentripplanner.routing.algorithm.filterchain.ItineraryListFilterChai
  */
 public class ItineraryFilterParameters {
 
-  public long maxCarUsage;
-
-  public double maxCarPerc;
+  public List<FeatureDescription> booleanParams;
+  public List<ScoreDescription> numberParams;
 
   /**
    * Switch on to return all itineraries and mark filtered itineraries as deleted.
@@ -103,11 +106,9 @@ public class ItineraryFilterParameters {
     this.nonTransitGeneralizedCostLimit =
         RequestFunctions.createLinearFunction(3600, 2);
 
-    // per il filtro sul tempo massimo che posso passare in auto
-    this.maxCarUsage = Long.MAX_VALUE;
 
-    // per il filtro sulla percentuale massima di tragitto che può essere svolta in auto
-    this.maxCarPerc = Double.MAX_VALUE;
+    this.numberParams = new ArrayList<>();
+    this.booleanParams = new ArrayList<>();
   }
 
   public static ItineraryFilterParameters createDefault() {

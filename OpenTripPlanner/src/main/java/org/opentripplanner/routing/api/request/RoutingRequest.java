@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +26,10 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.opentripplanner.api.common.LocationStringParser;
-import org.opentripplanner.api.common.Message;
-import org.opentripplanner.api.common.ParameterException;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.FeatureDescription;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.ScoreDescription;
 import org.opentripplanner.model.FeedScopedId;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.Route;
@@ -93,6 +91,9 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
 
     /** The complete list of incoming query parameters. */
     public final HashMap<String, String> parameters = new HashMap<String, String>();
+
+    public final List<FeatureDescription> filterFeatureDescriptions = new ArrayList<>();
+    public final List<ScoreDescription> filterScoreDescriptions = new ArrayList<>();
 
     /** The start location */
     public GenericLocation from;

@@ -41,7 +41,7 @@ public class MetricsLogging {
         new UptimeMetrics().bindTo(Metrics.globalRegistry);
 
         Router router = otpServer.getRouter();
-        Graph graph = router.graph;
+        Graph graph = router.getGraph();
 
         if(graph.getTransitLayer() != null) {
             new GuavaCacheMetrics(

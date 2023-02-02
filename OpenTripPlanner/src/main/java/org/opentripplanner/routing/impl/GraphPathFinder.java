@@ -66,7 +66,7 @@ public class GraphPathFinder {
         // Reuse one instance of AStar for all N requests, which are carried out sequentially
         AStar aStar = new AStar();
         if (options.rctx == null) {
-            options.setRoutingContext(router.graph);
+            options.setRoutingContext(router.getGraph());
             // The special long-distance heuristic should be sufficient to constrain the search to the right area.
         }
         // If this Router has a GraphVisualizer attached to it, set it as a callback for the AStar search

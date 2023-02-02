@@ -737,7 +737,7 @@ public abstract class RoutingResource {
         {
             //FIXME: move into setter method on routing request
             TimeZone tz;
-            tz = router.graph.getTimeZone();
+            tz = router.getGraph().getTimeZone();
             if (date == null && time != null) { // Time was provided but not date
                 LOG.debug("parsing ISO datetime {}", time);
                 try {

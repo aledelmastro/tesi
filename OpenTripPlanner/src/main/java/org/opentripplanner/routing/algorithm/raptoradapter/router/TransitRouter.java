@@ -69,15 +69,15 @@ public class TransitRouter {
             return new TransitRouterResult(List.of(), null);
         }
 
-        if (!router.graph.transitFeedCovers(request.getDateTime())) {
+        if (!router.getGraph().transitFeedCovers(request.getDateTime())) {
             throw new RoutingValidationException(List.of(
                     new RoutingError(RoutingErrorCode.OUTSIDE_SERVICE_PERIOD, InputField.DATE_TIME)
             ));
         }
 
         var transitLayer = request.ignoreRealtimeUpdates
-                ? router.graph.getTransitLayer()
-                : router.graph.getRealtimeTransitLayer();
+                ? router.getGraph().getTransitLayer()
+                : router.getGraph().getRealtimeTransitLayer();
 
         var requestTransitDataProvider = createRequestTransitDataProvider(
                 transitLayer
@@ -116,7 +116,7 @@ public class TransitRouter {
             paths = TransferOptimizationServiceConfigurator.createOptimizeTransferService(
                     transitLayer::getStopByIndex,
                     requestTransitDataProvider.stopNameResolver(),
-                    router.graph.getTransferService(),
+                    router.getGraph().getTransferService(),
                     requestTransitDataProvider,
                     transitLayer.getStopIndex().stopBoardAlightCosts,
                     raptorRequest,
@@ -127,12 +127,12 @@ public class TransitRouter {
         // Create itineraries
 
         RaptorPathToItineraryMapper itineraryMapper = new RaptorPathToItineraryMapper(
-                router.graph,
+                router.getGraph(),
                 transitLayer,
                 transitSearchTimeZero,
                 request
         );
-        FareService fareService = router.graph.getService(FareService.class);
+        FareService fareService = router.getGraph().getService(FareService.class);
 
         for (Path<TripSchedule> path : paths) {
             // Convert the Raptor/Astar paths to OTP API Itineraries
@@ -198,7 +198,7 @@ public class TransitRouter {
 
         // Prepare access/egress lists
         try (RoutingRequest accessRequest = request.getStreetSearchRequest(mode)) {
-            accessRequest.setRoutingContext(router.graph);
+            accessRequest.setRoutingContext(router.getGraph());
 
             if (!isEgress) {
                 accessRequest.allowKeepingRentedVehicleAtDestination = false;
@@ -231,7 +231,7 @@ public class TransitRouter {
     private RaptorRoutingRequestTransitData createRequestTransitDataProvider(
             TransitLayer transitLayer
     ) {
-        var graph = router.graph;
+        var graph = router.getGraph();
 
 
         try (RoutingRequest transferRoutingRequest = Transfer.prepareTransferRoutingRequest(request)) {

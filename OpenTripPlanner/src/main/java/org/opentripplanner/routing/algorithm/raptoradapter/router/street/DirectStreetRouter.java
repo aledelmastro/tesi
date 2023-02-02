@@ -26,7 +26,7 @@ public class DirectStreetRouter {
     }
 
     try (RoutingRequest directRequest = request.getStreetSearchRequest(request.modes.directMode)) {
-      directRequest.setRoutingContext(router.graph);
+      directRequest.setRoutingContext(router.getGraph());
 
       if(!straightLineDistanceIsWithinLimit(directRequest)) { return Collections.emptyList(); }
 

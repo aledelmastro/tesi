@@ -39,7 +39,7 @@ public class UpdaterStatusResource {
     /** Return a list of all agencies in the graph. */
     @GET
     public Response getUpdaters () {
-        GraphUpdaterManager updaterManager = router.graph.updaterManager;
+        GraphUpdaterManager updaterManager = router.getGraph().updaterManager;
         if (updaterManager == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No updaters running.").build();
         }
@@ -50,7 +50,7 @@ public class UpdaterStatusResource {
     @GET
     @Path("/{updaterId}")
     public Response getUpdaters (@PathParam("updaterId") int updaterId) {
-        GraphUpdaterManager updaterManager = router.graph.updaterManager;
+        GraphUpdaterManager updaterManager = router.getGraph().updaterManager;
         if (updaterManager == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No updaters running.").build();
         }

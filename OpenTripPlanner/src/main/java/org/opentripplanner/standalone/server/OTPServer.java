@@ -49,7 +49,7 @@ public class OTPServer {
      * will not be visible to the request.
      */
     public RoutingService createRoutingRequestService() {
-        return new RoutingService(router.graph);
+        return new RoutingService(router.getGraph());
     }
 
     /**

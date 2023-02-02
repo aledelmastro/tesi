@@ -438,7 +438,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         LOG.info("Starting up graph visualizer...");
         setTitle("GraphVisualizer");
         this.router = router;
-        this.graph = router.graph;
+        this.graph = router.getGraph();
         init();
     }
 

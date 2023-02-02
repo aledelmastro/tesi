@@ -24,7 +24,7 @@ public class DirectFlexRouter {
     }
 
     try (RoutingRequest directRequest = request.getStreetSearchRequest(request.modes.directMode)) {
-      directRequest.setRoutingContext(router.graph);
+      directRequest.setRoutingContext(router.getGraph());
 
       // Prepare access/egress transfers
       Collection<NearbyStop> accessStops = AccessEgressRouter.streetSearch(
@@ -39,7 +39,7 @@ public class DirectFlexRouter {
       );
 
       FlexRouter flexRouter = new FlexRouter(
-              router.graph,
+              router.getGraph(),
               router.routerConfig.flexParameters(request),
               directRequest.getDateTime(),
               directRequest.arriveBy,

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -861,7 +860,7 @@ public class LegacyGraphQLQueryTypeImpl
       request.setDateTime(
           environment.getArgument("date"),
           environment.getArgument("time"),
-          context.getRouter().graph.getTimeZone()
+          context.getRouter().getGraph().getTimeZone()
       );
 
       callWith.argument("wheelchair", request::setWheelchairAccessible);

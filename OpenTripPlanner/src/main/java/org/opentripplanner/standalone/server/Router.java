@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class Router {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Router.class);
-    public final Graph graph;
+    private final Graph graph;
     public final RouterConfig routerConfig;
     public final RaptorConfig<TripSchedule> raptorConfig;
 
@@ -74,7 +74,7 @@ public class Router {
      * Start up a new router once it has been created.
      */
     public void startup() {
-        this.tileRendererManager = new TileRendererManager(this.graph);
+        this.tileRendererManager = new TileRendererManager(this.getGraph());
         this.defaultRoutingRequest = routerConfig.routingRequestDefaults();
 
         if (routerConfig.requestLogFile() != null) {
@@ -87,12 +87,14 @@ public class Router {
         /* Create transit layer for Raptor routing. Here we map the scheduled timetables. */
         /* Realtime updates can be mapped similarly by a recurring operation in a GraphUpdater below. */
         LOG.info("Creating transit layer for Raptor routing.");
-        if (graph.hasTransit && graph.index != null) {
-            graph.setTransitLayer(TransitLayerMapper.map(routerConfig.transitTuningParameters(), graph));
-            graph.setRealtimeTransitLayer(new TransitLayer(graph.getTransitLayer()));
-            graph.transitLayerUpdater = new TransitLayerUpdater(
-                graph,
-                graph.index.getServiceCodesRunningForDate()
+        if (getGraph().hasTransit && getGraph().index != null) {
+            getGraph().setTransitLayer(TransitLayerMapper.map(routerConfig.transitTuningParameters(),
+                    getGraph()
+            ));
+            getGraph().setRealtimeTransitLayer(new TransitLayer(getGraph().getTransitLayer()));
+            getGraph().transitLayerUpdater = new TransitLayerUpdater(
+                    getGraph(),
+                getGraph().index.getServiceCodesRunningForDate()
             );
         } else {
             LOG.warn("Cannot create Raptor data, that requires the graph to have transit data and be indexed.");
@@ -100,17 +102,17 @@ public class Router {
 
         /* Create Graph updater modules from JSON config. */
         GraphUpdaterConfigurator.setupGraph(
-            this.graph,
+                this.getGraph(),
             routerConfig.updaterConfig()
         );
 
         /* Compute ellipsoidToGeoidDifference for this Graph */
         try {
-            WorldEnvelope env = graph.getEnvelope();
+            WorldEnvelope env = getGraph().getEnvelope();
             double lat = (env.getLowerLeftLatitude() + env.getUpperRightLatitude()) / 2;
             double lon = (env.getLowerLeftLongitude() + env.getUpperRightLongitude()) / 2;
-            graph.ellipsoidToGeoidDifference = ElevationUtils.computeEllipsoidToGeoidDifference(lat, lon);
-            LOG.info("Computed ellipsoid/geoid offset at (" + lat + ", " + lon + ") as " + graph.ellipsoidToGeoidDifference);
+            getGraph().ellipsoidToGeoidDifference = ElevationUtils.computeEllipsoidToGeoidDifference(lat, lon);
+            LOG.info("Computed ellipsoid/geoid offset at (" + lat + ", " + lon + ") as " + getGraph().ellipsoidToGeoidDifference);
         } catch (Exception e) {
             LOG.error("Error computing ellipsoid/geoid difference");
         }
@@ -118,7 +120,7 @@ public class Router {
         if(OTPFeature.SandboxAPITransmodelApi.isOn()) {
             TransmodelAPI.setUp(
                 routerConfig.transmodelApi(),
-                graph,
+                    getGraph(),
                 defaultRoutingRequest
             );
         }
@@ -126,7 +128,11 @@ public class Router {
 
     /** Shut down this router when evicted or (auto-)reloaded. Stop any real-time updater threads. */
     public void shutdown() {
-        GraphUpdaterConfigurator.shutdownGraph(this.graph);
+        GraphUpdaterConfigurator.shutdownGraph(this.getGraph());
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 
     /**

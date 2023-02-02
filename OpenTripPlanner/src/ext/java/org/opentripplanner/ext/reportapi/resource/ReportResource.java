@@ -25,8 +25,8 @@ public class ReportResource {
 
     @SuppressWarnings("unused")
     public ReportResource(@Context OTPServer server) {
-        this.transferService = server.getRouter().graph.getTransferService();
-        this.index = server.getRouter().graph.index;
+        this.transferService = server.getRouter().getGraph().getTransferService();
+        this.index = server.getRouter().getGraph().index;
     }
 
     @GET

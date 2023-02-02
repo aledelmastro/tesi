@@ -56,7 +56,7 @@ public class ParkAndRideResource {
         }
 
         List<ParkAndRideInfo> prs = new ArrayList<>();
-        for (Vertex v : router.graph.getVertices()) {
+        for (Vertex v : router.getGraph().getVertices()) {
             // Check if vertex is a ParkAndRideVertex
             if (!(v instanceof VehicleParkingEntranceVertex)) continue;
 
@@ -68,7 +68,7 @@ public class ParkAndRideResource {
 
             // Check if vertex is within maxTransitDistance of a stop (if specified)
             if (maxTransitDistance != null) {
-                List<TransitStopVertex> stops = router.graph.getStreetIndex().getNearbyTransitStops(
+                List<TransitStopVertex> stops = router.getGraph().getStreetIndex().getNearbyTransitStops(
                     new Coordinate(v.getX(), v.getY()), maxTransitDistance);
                 if (stops.isEmpty()) { continue; }
             }

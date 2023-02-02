@@ -177,7 +177,7 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         Vertex bottomV = graph.getVertex("osm:node:580290955");
         Vertex topV = graph.getVertex("osm:node:559271124");
 
-        request.setRoutingContext(router.graph, bottomV, topV);
+        request.setRoutingContext(router.getGraph(), bottomV, topV);
 
         GraphPathFinder graphPathFinder = new GraphPathFinder(router);
         List<GraphPath> pathList = graphPathFinder.graphPathFinderEntryPoint(request);

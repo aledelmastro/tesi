@@ -89,7 +89,7 @@ public class VectorTilesResource {
         cacheMaxSeconds = Math.min(cacheMaxSeconds, layerParameters.cacheMaxSeconds());
         mvtBuilder.addLayers(VectorTilesResource.layers
             .get(LayerType.valueOf(layerParameters.type()))
-            .apply(router.graph, layerParameters)
+            .apply(router.getGraph(), layerParameters)
             .build(envelope, layerParameters));
       }
     }
@@ -110,7 +110,7 @@ public class VectorTilesResource {
       @Context HttpHeaders headers,
       @PathParam("layers") String requestedLayers
   ) {
-    return new TileJson(otpServer.getRouter().graph, uri, headers, requestedLayers);
+    return new TileJson(otpServer.getRouter().getGraph(), uri, headers, requestedLayers);
   }
 
   private String getBaseAddress(UriInfo uri, HttpHeaders headers, String layers) {

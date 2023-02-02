@@ -134,7 +134,7 @@ public class GraphInspectorTileResource {
 
         Router router = otpServer.getRouter();
         var variables =
-                router.graph.getEdgesOfType(GreenStreetEdge.class).get(0).getScores().keySet();
+                router.getGraph().getEdgesOfType(GreenStreetEdge.class).get(0).getScores().keySet();
         return new JSONObject(Map.of("variables", new ArrayList<>(variables))).toJSONString();
     }
 
@@ -184,7 +184,7 @@ public class GraphInspectorTileResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String getGeoJson(@PathParam("layer") String feature) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
         FeatureCollection collection;
 
         if (feature.equals("green")) {collection = getGreenEdgesAsFeatures();}
@@ -197,7 +197,7 @@ public class GraphInspectorTileResource {
 
     private FeatureCollection getGreenEdgesAsFeatures(Collection<String> params) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
         var features = getEdgesForEnvelope(latTl, latBr, lngTl, lngBr)
                 .stream()
                 .filter(e -> e instanceof GreenStreetEdge)
@@ -210,7 +210,7 @@ public class GraphInspectorTileResource {
 
     private FeatureCollection getOtherThanGreenEdges() {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         var features = getEdgesForEnvelope(latTl, latBr, lngTl, lngBr)
                 .stream()
@@ -240,7 +240,7 @@ public class GraphInspectorTileResource {
 
     private String getGreenEdgesAsFeaturesComp(Collection<String> params) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         JSONObject o = new JSONObject();
         o.put("t", "fc");
@@ -277,7 +277,7 @@ public class GraphInspectorTileResource {
 
     private FeatureCollection getEdgesWithScore(String feature) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         /*JSONObject o = new JSONObject();
 
@@ -301,7 +301,7 @@ public class GraphInspectorTileResource {
 
     private FeatureCollection getGreenEdgesAsFeatures() {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         /*JSONObject o = new JSONObject();
 
@@ -326,7 +326,7 @@ public class GraphInspectorTileResource {
             double lngTl,
             double lngBr
     ) {
-        var graph = otpServer.getRouter().graph;
+        var graph = otpServer.getRouter().getGraph();
         return graph
                 .getStreetIndex()
                 .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr));
@@ -335,14 +335,14 @@ public class GraphInspectorTileResource {
     // Da ripensare
     private Collection<String> getProps() {
         var router = this.otpServer.getRouter();
-        var props = router.graph.getEdgesOfType(GreenStreetEdge.class)
+        var props = router.getGraph().getEdgesOfType(GreenStreetEdge.class)
                 .stream()
                 .map(e -> e.getScores().keySet())
                 .filter(set -> set.size() > 0)
                 .findFirst()
                 .orElseGet(HashSet::new);
 
-        var feat = router.graph.getEdgesOfType(GreenStreetEdge.class)
+        var feat = router.getGraph().getEdgesOfType(GreenStreetEdge.class)
                 .stream()
                 .map(e -> e.getFeatures().keySet())
                 .filter(set -> set.size() > 0)
@@ -373,7 +373,7 @@ public class GraphInspectorTileResource {
 
     private FeatureCollection getAllGreenEdgesAsFeatures(Collection<String> params) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         var features = graph.getEdgesOfType(GreenStreetEdge.class)
         .stream()
@@ -389,7 +389,7 @@ public class GraphInspectorTileResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Boolean getGreenEdgesAsLDGeojson(Collection<String> params) {
         var router = otpServer.getRouter();
-        var graph = router.graph;
+        var graph = router.getGraph();
 
         var props = getProps();
         var features = graph.getEdgesOfType(GreenStreetEdge.class)
@@ -435,7 +435,7 @@ public class GraphInspectorTileResource {
     public void createTiles() {
         var c = new GreenRoutingConfig(null, null,0,Set.of(),Set.of(),"3","data/LDGeojson_API.json", "l.txt");
         var g = new GreenRouting<>(c);
-        g.writeFiles(otpServer.getRouter().graph);
+        g.writeFiles(otpServer.getRouter().getGraph());
     }
 
 }

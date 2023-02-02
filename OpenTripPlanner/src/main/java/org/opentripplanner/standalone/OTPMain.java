@@ -10,6 +10,7 @@ import org.opentripplanner.standalone.config.CommandLineParameters;
 import org.opentripplanner.standalone.configure.OTPAppConstruction;
 import org.opentripplanner.standalone.server.GrizzlyServer;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.OtpAppException;
 import org.opentripplanner.util.ThrowableUtils;
 import org.opentripplanner.visualizer.GraphVisualizer;
@@ -163,7 +164,12 @@ public class OTPMain {
         // publishing the config version info make it available to the APIs
         app.setOtpConfigVersionsOnServerInfo();
 
-        Router router = new Router(graph, app.config().routerConfig());
+        Router router = null;
+        if (OTPFeature.GreenRouting.isOn())
+            router = new Router(graph, app.config().routerConfig());
+        else
+            router = new Router(graph, app.config().routerConfig());
+
         router.startup();
 
         /* Start visualizer if requested. */

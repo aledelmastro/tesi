@@ -94,6 +94,8 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
 
     public final List<FeatureDescription> filterFeatureDescriptions = new ArrayList<>();
     public final List<ScoreDescription> filterScoreDescriptions = new ArrayList<>();
+    public final List<FeatureDescription> preFilterFeatureDescriptions = new ArrayList<>();
+    public final List<ScoreDescription> preFilterScoreDescriptions = new ArrayList<>();
 
     /** The start location */
     public GenericLocation from;

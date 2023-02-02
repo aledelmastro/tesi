@@ -12,6 +12,7 @@ import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
@@ -168,6 +169,7 @@ public class AStar {
                         runState.options
                     )
             ) {
+                LOG.info("Edge skipped." + ((edge instanceof StreetEdge) ? ": " + ((StreetEdge)edge).wayId : ""));
                 continue;
             }
 

@@ -3,6 +3,7 @@ package org.opentripplanner.standalone;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.opentripplanner.datastore.DataSource;
+import org.opentripplanner.ext.greenrouting.standalone.server.PruningRouter;
 import org.opentripplanner.graph_builder.GraphBuilder;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.SerializedGraphObject;
@@ -166,7 +167,7 @@ public class OTPMain {
 
         Router router = null;
         if (OTPFeature.GreenRouting.isOn())
-            router = new Router(graph, app.config().routerConfig());
+            router = new PruningRouter(graph, app.config().routerConfig());
         else
             router = new Router(graph, app.config().routerConfig());
 

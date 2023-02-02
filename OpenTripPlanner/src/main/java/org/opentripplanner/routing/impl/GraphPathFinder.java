@@ -3,6 +3,8 @@ package org.opentripplanner.routing.impl;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.opentripplanner.ext.greenrouting.edgetype.GreenFactor;
+import org.opentripplanner.ext.greenrouting.routing.algorithm.astar.strategies.ParametricSkipEdgeStrategyBuilder;
 import org.opentripplanner.routing.algorithm.astar.AStar;
 import org.opentripplanner.routing.algorithm.astar.strategies.DurationSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.EuclideanRemainingWeightHeuristic;
@@ -15,6 +17,7 @@ import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +104,17 @@ public class GraphPathFinder {
         }
         // Don't dig through the SPT object, just ask the A star algorithm for the states that reached the target.
         // Use the maxDirectStreetDurationSeconds as the limit here, as this class is used for point-to-point routing
-        aStar.setSkipEdgeStrategy(new DurationSkipEdgeStrategy(options.maxDirectStreetDurationSeconds));
+
+        if (OTPFeature.GreenRouting.isOn()) {
+            var builder = new ParametricSkipEdgeStrategyBuilder();
+            options.preFilterFeatureDescriptions.forEach(builder::has);
+            options.preFilterScoreDescriptions.forEach(builder::has);
+
+            aStar.setSkipEdgeStrategy(builder.build());
+        } else {
+            aStar.setSkipEdgeStrategy(new DurationSkipEdgeStrategy(options.maxDirectStreetDurationSeconds));
+        }
+
         aStar.getShortestPathTree(options, timeout, null);
 
         List<GraphPath> paths = aStar.getPathsToTarget();

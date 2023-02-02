@@ -1,5 +1,8 @@
 package org.opentripplanner.ext.greenrouting.api.resource;
 
+import static java.util.Objects.requireNonNullElse;
+
+import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -21,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class GreenPlannerResource extends PlannerResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreenPlannerResource.class);
-    private GreenFilterRequest greenFilterRequest = new GreenFilterRequest();
+    private GreenFilterRequest gfr = new GreenFilterRequest();
 
     @PUT
     @Consumes("application/json")
@@ -29,7 +32,7 @@ public class GreenPlannerResource extends PlannerResource {
     public TripPlannerResponse plan(
             @Context UriInfo uriInfo, @Context Request grizzlyRequest, GreenFilterRequest gfr
     ) {
-        this.greenFilterRequest = gfr;
+        this.gfr = gfr;
         return plan(uriInfo, grizzlyRequest);
     }
 
@@ -38,8 +41,13 @@ public class GreenPlannerResource extends PlannerResource {
         var request = super.buildRequest(queryParameters);
         request.filterFeatureDescriptions.clear();
         request.filterScoreDescriptions.clear();
-        request.filterFeatureDescriptions.addAll(greenFilterRequest.getFeatures());
-        request.filterScoreDescriptions.addAll(greenFilterRequest.getScores());
+        request.preFilterFeatureDescriptions.clear();
+        request.preFilterScoreDescriptions.clear();
+
+        request.filterFeatureDescriptions.addAll(requireNonNullElse(gfr.getFeatures(), List.of()));
+        request.filterScoreDescriptions.addAll(requireNonNullElse(gfr.getScores(), List.of()));
+        request.preFilterFeatureDescriptions.addAll(requireNonNullElse(gfr.getPreFeatures(), List.of()));
+        request.preFilterScoreDescriptions.addAll(requireNonNullElse(gfr.getPreScores(), List.of()));
 
         request.itineraryFilters.booleanParams = request.filterFeatureDescriptions;
         request.itineraryFilters.numberParams = request.filterScoreDescriptions;

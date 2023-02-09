@@ -1,8 +1,9 @@
 import React from "react";
 import * as PropTypes from "prop-types";
+import {Button} from "semantic-ui-react";
 
 function ContextMenu(props) {
-    const {setFrom, setTo, visible, top, left} = props;
+    const {setFrom, setTo, getInfo, visible, top, left, showInfo} = props;
 
     const style = {
         display: visible ? "block" : "none",
@@ -10,10 +11,13 @@ function ContextMenu(props) {
         top: top
     }
 
-    return(
-        <div id={"pointer"} style={style}>
-            <button onClick={() => setFrom(top, left)}>FROM</button>
-            <button onClick={() => setTo(top, left)}>TO</button>
+    return (
+        <div id={"contextMenu"} style={style}>
+            <Button.Group vertical>
+                <Button className={'item'} onClick={setFrom}>Partenza</Button>
+                <Button className={'item'} onClick={setTo}>Arrivo</Button>
+                {showInfo ? <Button className={'item'} onClick={getInfo}>Info</Button> : <></>}
+            </Button.Group>
         </div>
     )
 }
@@ -21,6 +25,7 @@ function ContextMenu(props) {
 ContextMenu.propTypes = {
     setFrom: PropTypes.func.isRequired,
     setTo: PropTypes.func.isRequired,
+    getInfo: PropTypes.func.isRequired,
     visible: PropTypes.bool.isRequired,
     left: PropTypes.number.isRequired,
     top: PropTypes.number.isRequired

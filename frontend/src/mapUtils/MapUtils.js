@@ -1,5 +1,5 @@
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import {lineString, featureCollection} from '@turf/helpers'
+import {lineString, featureCollection, point} from '@turf/helpers'
 
 const GREEN_LAYER = "GREEN";
 
@@ -55,7 +55,7 @@ class MapUtils {
                 'line-cap': 'round'
             },
             paint: {
-                'line-color': '#52B780',
+                'line-color': '#fa0feb',
                 'line-opacity': 0.4,
                 'line-width': 8
             }
@@ -102,33 +102,83 @@ class MapUtils {
         this.map.fitBounds([sw, ne]);
     }
 
-    addTiles() {
-        const sName = 'tiles';
-        this.map.addSource(sName, {
-            type: 'vector',
-            url: 'mapbox://ale-delmastro.green_v3'
-        });
+    updateFilters(filters) {
+        if (this.map.getLayer('tiles')) {
+            const arr = ['all'];
+            filters.forEach(f => arr.push(f));
+            this.map.setFilter('tiles', arr);
+            this.map.setPaintProperty('tiles', 'line-color', '#f60808');
 
-        this.map.addLayer({
-            'id': sName,
-            'type': 'line',
-            'source': sName,
-            'source-layer': 'street',
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round',
-            },
-            'paint': {
-                'line-color': paint('score'),
-                'line-opacity': 0.4,
-                'line-width': 8,
-            },
-        });
-
-        return sName;
+            const arr2 = ['any'];
+            filters.forEach(f => arr2.push(f));
+            this.map.setFilter('tiles_zeroes', ['!', arr2]);
+        }
     }
 
-    addGeoJson (geojson) {
+    removeTiles() {
+        if (this.map.getLayer('tiles')) this.map.removeLayer('tiles');
+        if (this.map.getLayer('tiles_zeroes')) this.map.removeLayer('tiles_zeroes');
+    }
+
+    updateTiles(value) {
+        if (!this.map.getLayer('tiles')) {
+            this.addTiles(value);
+        } else {
+            this.map.setPaintProperty('tiles', 'line-color', paint(value));
+            this.map.setFilter('tiles', ['>', ['get', value], 0]);
+            this.map.setFilter('tiles_zeroes', ['==', ['get', value], 0]);
+        }
+    }
+
+    addTiles(value='score') {
+        if (!this.map.getSource('tiles')) {
+            this.map.addSource('tiles', {
+                type: 'vector',
+                url: 'mapbox://ale-delmastro.green'
+            });
+        }
+
+        if (!this.map.getLayer('tiles')) {
+            this.map.addLayer({
+                'id': 'tiles',
+                'type': 'line',
+                'source': 'tiles',
+                'source-layer': 'street',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round',
+                },
+                'paint': {
+                    'line-color': paint(value),
+                    'line-opacity': 0.4,
+                    'line-width': 6,
+                },
+                filter: ['>', ['get', value], 0]
+            });
+        }
+
+        if (!this.map.getLayer('tiles_zeroes')) {
+            this.map.addLayer({
+                'id': "tiles_zeroes",
+                'type': 'line',
+                'source': "tiles",
+                'source-layer': 'street',
+                'paint': {
+                    'line-opacity': 0,
+                    'line-width': 6,
+                },
+                filter: ['==', ['get', value], 0]
+            });
+        }
+
+        return 'tiles';
+    }
+
+    getFirstLast(arr) {
+        return [arr[0], arr[arr.length -1]];
+    }
+
+    addGeoJson (geojson, score='score') {
         const features = geojson['features'];
         this.addGeoJsonSource(GREEN_LAYER);
         //this.addLineLayer(GREEN_LAYER);
@@ -150,29 +200,50 @@ class MapUtils {
                     ['!', ['has', 'score']], '#F6B829',
                     /*['==', ['get', 'score'], 0], '#efefef',*/
                     ['>=', ['get', 'score'], 0.5], '#43ff64',
-                    ['<', ['get', 'score'], 0.5], '#ff0000'
+                    ['<', ['get', 'score'], 0.5], '#ff0000',
+                    '#0048ff'
                 ],
                 'line-opacity': 0.4,
                 'line-width': 8,
             },
-            minzoom: 14,
-            maxzoom: 16,
-            filter: ['!=', ['get', 'score'], 0]
+            minzoom: 14/*,
+            maxzoom: 20,
+            filter: ['!=', ['get', 'score'], 0]*/
         });
+
+        const boundaries = geojson['features'].map(f => this.getFirstLast(f['geometry']['coordinates'])).reduce((v1, v2) => v1.concat(v2), []).map(p => point(p));
+        this.addGeoJsonSource("boundaries");
+        this.map.getSource("boundaries").setData(featureCollection(boundaries));
+
+        this.map.addLayer({
+            "id": "pointsss",
+            "type": "circle",
+            "source": "boundaries",
+            minzoom: 14,
+            /*maxzoom: 20,*/
+            /*"layout": {
+                "circle-color": '#dc1010'
+            }*//*,
+            filter: ['!=', ['get', 'score'], 0]*/
+        });
+
+        const tmp = GREEN_LAYER+"_2";
+        this.addGeoJsonSource(tmp);
+        this.map.getSource(tmp).setData(geojson);
 
         this.map.addLayer({
             "id": "symbols",
             "type": "symbol",
-            "source": GREEN_LAYER,
+            "source": tmp,
             minzoom: 14,
-            maxzoom: 16,
+           /* maxzoom: 20,*/
             "layout": {
-                "symbol-placement": "line",
+                "symbol-placement": "line-center",
                 "text-font": ["Open Sans Regular"],
-                "text-field": '{score}',
+                "text-field": ["get", "osm_id"],
                 "text-size": 16
-            },
-            filter: ['!=', ['get', 'score'], 0]
+            }/*,
+            filter: ['!=', ['get', 'score'], 0]*/
         });
     }
 
@@ -182,32 +253,12 @@ class MapUtils {
 function paint(attribute) {
     return [
         'case',
-        ['!', ['has', attribute]], '#F6B829',
-        /*['==', ['get', 'score'], 0], '#efefef',*/
-        ['>=', ['get', attribute], 0.5], '#FE1EF0',
-        '#fefefe'
+        ['>=', ['get', attribute], 0.5], '#ff0000',
+        ['>=', ['get', attribute], 0.3], '#ff8c00',
+        ['>=', ['get', attribute], 0.1], '#ffea00',
+        '#f2ff7b'
     ]
 }
-const paint1 = {
-    'line-color': [
-        'case',
-        ['!', ['has', 'score']], '#F6B829',
-        /*['==', ['get', 'score'], 0], '#efefef',*/
-        ['>=', ['get', 'score'], 20], '#43ff64',
-        ['<=', ['get', 'score'], 5], '#00efff',
-        /* other */ '#ff0000'
-    ],
-    'line-opacity': 0.4,
-    'line-width': 8,
-}
-
-const paint2 = [
-            'case',
-            /*['==', ['get', 'score'], 0], '#efefef',*/
-            ['<=', ['get', 'surrounded_other_green'], 0.5], '#43ff64',
-            ['>', ['get', 'surrounded_other_green'], 0.5], '#00efff',
-            /* other */ '#ff0000'
-        ];
 
 function decodePolyline(polyline) {
 
@@ -256,28 +307,3 @@ function decodePolyline(polyline) {
 }
 
 export {MapUtils, decodePolyline, paint};
-
-
-
-
-
-
-/*function cutData(data, bounds) {
-    const box = bboxPolygon([bounds.getWest().toFixed(5), bounds.getNorth().toFixed(5), bounds.getEast().toFixed(5), bounds.getSouth().toFixed(5)]);
-    //data["features"].forEach(f => f["geometry"].coordinates.forEach(v => [v[0].toFixed(5), v[1].toFixed(5)]));
-
-    const t1 = new Date();
-    const t = data["features"].filter(f => {
-        /!*const ls = lineString(f["geometry"].coordinates.map(v => [v[0].toFixed(5), v[1].toFixed(5)]));
-        const env = envelope(ls);
-*!/
-        //const i = intersect(env.geometry, box.geometry);
-        const i = intersect(box.geometry, box.geometry);
-        return i !== null;
-    });
-    const t2 = new Date();
-    console.log((t2-t1)/1000);
-
-    console.log(t.length);
-    return featureCollection(t);
-}*/

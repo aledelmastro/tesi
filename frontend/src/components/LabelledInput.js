@@ -1,6 +1,6 @@
 import React from "react";
 import * as PropTypes from "prop-types";
-import {Button, TextArea, Label, Input} from 'semantic-ui-react'
+import {Input} from 'semantic-ui-react'
 
 function handleChange(event, callback) {
     callback(event.target.value);

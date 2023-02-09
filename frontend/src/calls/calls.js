@@ -66,7 +66,10 @@ async function requestInspectorModes() {
     if (res.data.error !== undefined)
         throw new Error(res.data.error.id + " " + res.data.error.message);
 
-    return res.data.variables;
+    return {
+        features: res.data.features,
+        scores: res.data.scores
+    };
 }
 
 export {requestItinerary, requestInspector, requestInspectorModes, requestInspectorAll}

@@ -49,18 +49,48 @@ input[type=number]{
   border-radius: 4px;
 }
 
-#pointer {
-  width: 100px;
-  height: 100px;
+#contextMenu {
   position: absolute;
   z-index: 10;
-  background-color: #61dafb;
+  box-shadow: 3px 3px 3px darkgray;
+  background-color: transparent;
+  border-radius: .28571429rem;
+}
+
+#contextMenu .item {
+  background-color: #ffffff;
+  text-align: left;
+  font-weight: normal;
+}
+
+#contextMenu .item:hover {
+  background-color: #eeeeee;
+}
+
+#layerSelector {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 #layersCard {
   position: absolute;
   right: 10px;
   top: 10px;
-  background-color: transparent;
+  background-color: white;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0px 0px 3px darkgray;
   z-index: 100
+}
+
+#IoTile {
+  padding: 20px;
+  box-shadow: 1px 0px 3px darkgrey;
+  z-index: 1;
+}
+
+#InfoBox {
+  display: block;
+  margin-top: 1em;
 }

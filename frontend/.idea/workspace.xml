@@ -2,19 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="LayerSelector con tiles pre renderizzate.">
-      <change afterPath="$PROJECT_DIR$/src/components/LayerSelector.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../layersReceipe.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/FiltersPanel.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ListWithLegend.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/api/resource/GraphInspectorTileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/api/resource/GraphInspectorTileResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/algorithm/astar/AStar.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/algorithm/astar/AStar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ContextMenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ContextMenu.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/InputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/LabelledInput.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LabelledInput.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/LayerSelector.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,6 +28,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -54,7 +57,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/turf-master/turf-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../5T_Sustain/OpenTripPlanner/src/client" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="project.propDebugger" />
     <property name="ts.external.directory.path" value="C:\Users\Alessandro\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6461.79\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
@@ -96,7 +99,20 @@
       <workItem from="1673511012591" duration="17917000" />
       <workItem from="1673598124454" duration="21173000" />
       <workItem from="1673858364816" duration="22648000" />
-      <workItem from="1673971280813" duration="2579000" />
+      <workItem from="1673971280813" duration="8170000" />
+      <workItem from="1674039784482" duration="3006000" />
+      <workItem from="1674467914263" duration="6501000" />
+      <workItem from="1674487996146" duration="10922000" />
+      <workItem from="1674567060320" duration="3240000" />
+      <workItem from="1674640810329" duration="2100000" />
+      <workItem from="1674732685396" duration="7390000" />
+      <workItem from="1674814108455" duration="4053000" />
+      <workItem from="1675163291514" duration="1783000" />
+      <workItem from="1675244925014" duration="239000" />
+      <workItem from="1675350210020" duration="1375000" />
+      <workItem from="1675762392707" duration="18697000" />
+      <workItem from="1675851309168" duration="21257000" />
+      <workItem from="1675934154443" duration="19555000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -119,7 +135,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673908991941</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="LayerSelector con tiles pre renderizzate.">
+      <created>1673975358178</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1673975358178</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

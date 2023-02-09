@@ -1,5 +1,6 @@
 package org.opentripplanner.api.resource;
 
+import com.google.api.client.json.Json;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
@@ -142,8 +143,16 @@ public class GraphInspectorTileResource {
     @Path("/green/props")
     @Produces(MediaType.APPLICATION_JSON)
     public String getGreenVariables() {
-        var props = getProps();
-        return new JSONObject(Map.of("variables", new ArrayList<>(props))).toJSONString();
+        var obj = new JSONObject();
+        var features = getFeatures();
+        var scores = getScores();
+
+        obj.put("features", new ArrayList<>(features));
+        obj.put("scores", new ArrayList<>(scores));
+
+        /*var props = getProps();
+        return new JSONObject(Map.of("variables", new ArrayList<>(props))).toJSONString();*/
+        return obj.toJSONString();
     }
 
     @GET
@@ -332,25 +341,36 @@ public class GraphInspectorTileResource {
                 .getEdgesForEnvelope(new Envelope(latTl, latBr, lngTl, lngBr));
     }
 
-    // Da ripensare
-    private Collection<String> getProps() {
+    private Collection<String> getFeatures() {
         var router = this.otpServer.getRouter();
-        var props = router.getGraph().getEdgesOfType(GreenStreetEdge.class)
-                .stream()
-                .map(e -> e.getScores().keySet())
-                .filter(set -> set.size() > 0)
-                .findFirst()
-                .orElseGet(HashSet::new);
-
-        var feat = router.getGraph().getEdgesOfType(GreenStreetEdge.class)
+        return router.getGraph().getEdgesOfType(GreenStreetEdge.class)
                 .stream()
                 .map(e -> e.getFeatures().keySet())
                 .filter(set -> set.size() > 0)
                 .findFirst()
                 .orElseGet(HashSet::new);
+    }
 
-        var l = new ArrayList<>(props);
-        l.addAll(feat);
+    private Collection<String> getScores() {
+        var router = this.otpServer.getRouter();
+        var scores = router.getGraph().getEdgesOfType(GreenStreetEdge.class)
+                .stream()
+                .map(e -> e.getScores().keySet())
+                .filter(set -> set.size() > 0)
+                .findFirst()
+                .orElseGet(HashSet::new);
+        var scoresExpanded = new HashSet<>(scores);
+        scoresExpanded.add("score");
+        return scoresExpanded;
+    }
+
+    // Da ripensare
+    private Collection<String> getProps() {
+        var scores = getScores();
+        var features = getFeatures();
+
+        var l = new ArrayList<>(scores);
+        l.addAll(features);
         /*props.add("score");*/
         return l;
     }

@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="LayerSelector con tiles pre renderizzate.">
-      <change afterPath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/FiltersPanel.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ListWithLegend.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/api/resource/GraphInspectorTileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/api/resource/GraphInspectorTileResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/algorithm/astar/AStar.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/algorithm/astar/AStar.java" afterDir="false" />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Refactor pannelli, aggiunto filtro custom, modificato il pannello info.">
+      <change afterPath="$PROJECT_DIR$/src/components/PruningPanel.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ContextMenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ContextMenu.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/FiltersPanel.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FiltersPanel.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/LabelledInput.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LabelledInput.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/LayerSelector.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SearchInputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +24,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="TypeScript File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -63,7 +60,7 @@
     <property name="ts.external.directory.path" value="C:\Users\Alessandro\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6461.79\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="npm.start">
+  <component name="RunManager" selected="JavaScript Debug.Debug">
     <configuration name="Debug" type="JavascriptDebugType" uri="http://localhost:3000">
       <method v="2" />
     </configuration>
@@ -112,7 +109,9 @@
       <workItem from="1675350210020" duration="1375000" />
       <workItem from="1675762392707" duration="18697000" />
       <workItem from="1675851309168" duration="21257000" />
-      <workItem from="1675934154443" duration="19555000" />
+      <workItem from="1675934154443" duration="19687000" />
+      <workItem from="1676121176815" duration="7654000" />
+      <workItem from="1676196012642" duration="36174000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -142,7 +141,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673975358178</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Refactor pannelli, aggiunto filtro custom, modificato il pannello info.">
+      <created>1675968351408</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1675968351408</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,6 +170,19 @@
     <MESSAGE value="Ripulito progetto intellij" />
     <MESSAGE value="Aggiunto inspector per vedere i &quot;green score&quot;." />
     <MESSAGE value="LayerSelector con tiles pre renderizzate." />
-    <option name="LAST_COMMIT_MESSAGE" value="LayerSelector con tiles pre renderizzate." />
+    <MESSAGE value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/IOTile.js</url>
+          <line>32</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

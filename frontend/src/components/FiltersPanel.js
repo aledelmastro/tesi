@@ -20,7 +20,7 @@ function FiltersPanel(props) {
     }
 
     return <div id={"layersCard"}>
-        <Menu tabular>
+        <Menu tabular secondary pointing>
             <Menu.Item
                 name='Semplice'
                 active={activeItem === 'Semplice'}
@@ -34,7 +34,7 @@ function FiltersPanel(props) {
         </Menu>
         {activeItem === 'Semplice' ?
             <ListWithLegend disabled={disabled} onChange={onChange} items={scores.concat(features)}/> :
-            <CustomFilterGenerator scores={scores} features={features} onClick={onClick} operators={OPERATORS}/>}
+            <CustomFilterGenerator scores={scores.sort()} features={features.sort()} onClick={onClick} operators={OPERATORS}/>}
     </div>
 }
 

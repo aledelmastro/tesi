@@ -62,6 +62,7 @@ function CustomFilterGenerator(props) {
                             </Table.Cell>
                             <Table.Cell>
                                 <Input style={{width: "5em"}}
+                                       type={"number"}
                                        onChange={(e, v) => updateMap(valMap.current, name, v.value)}
                                 />
                             </Table.Cell>

@@ -7,10 +7,10 @@ function formatCoordinates(lat, lon) {
     return lat+','+lon;
 }
 
-async function requestItinerary(from, to, time, date, mode, locale, callback) {
+async function requestItinerary(from, to, filters, time, date, mode, locale, callback) {
     const url = baseUrl + "/plan";
 
-    const res = await axios.get(url,{
+    const res = await axios.post(url, filters,{
         params:{
             //fromPlace: '45.06591,7.66738',
             fromPlace: from,
@@ -20,6 +20,9 @@ async function requestItinerary(from, to, time, date, mode, locale, callback) {
             date: '11-11-2022',
             mode: 'WALK',
             locale: 'it',
+        },
+        headers: {
+            'Access-Control-Allow-Origin' : '*'
         }
     });
 

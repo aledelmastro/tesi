@@ -88,9 +88,43 @@ input[type=number]{
   padding: 20px;
   box-shadow: 1px 0px 3px darkgrey;
   z-index: 1;
+  overflow: auto;
+}
+
+#submit {
+  margin-top: 1em;
 }
 
 #InfoBox {
   display: block;
   margin-top: 1em;
+}
+
+#scoreGrid {
+  display: grid;
+  grid-template-columns: max-content 5em auto;
+  grid-column-gap: 0.5em;
+  grid-row-gap: 0.5em;
+  -ms-grid-row-align: center;
+}
+
+#scoreGrid .dropdown{
+  align-content: baseline;
+}
+
+#scoreGrid label{
+  align-self: center;
+  font-size: .92857143em;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.resContainer {
+  width: 100%;
+  padding: 10px;
+}
+
+.resContainer .btnToggle {
+  width: fit-content;
+  align-self: end;
 }

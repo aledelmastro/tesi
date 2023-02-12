@@ -22,6 +22,8 @@ function App() {
     const fromMarker = useRef(null);
     const toMarker = useRef(null);
 
+    const [showInfoBox, setShowInfoBox] = useState(false);
+
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
 
@@ -167,6 +169,7 @@ function App() {
                 features.splice(1, features.length-1);
             }
             setInfo(features.map(f=> f['properties']));
+            setShowInfoBox(true);
         }
         hideContextMenu();
     }
@@ -193,6 +196,11 @@ function App() {
                 setFrom={setFrom}
                 setTo={setTo}
                 info={info}
+                features={scoresAndFeatures.features}
+                scores={scoresAndFeatures.scores}
+                operators={['>','<']}
+                showInfoBox={showInfoBox}
+                setShowInfoBox={setShowInfoBox}
             />
             <ContextMenu
                 setTo={() => updateFromTo(false)}

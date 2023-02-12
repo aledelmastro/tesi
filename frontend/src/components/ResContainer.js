@@ -1,7 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 import {decodePolyline} from "../mapUtils/MapUtils";
 import * as PropTypes from "prop-types";
-import {Card} from "semantic-ui-react";
+import {Button, Card} from "semantic-ui-react";
 
 function ResContainer(props) {
     const itin = props.itin;
@@ -11,9 +11,14 @@ function ResContainer(props) {
     const walkTime = itin.walkTime;
     const generalizedCost = itin.generalizedCost;
     const legs = itin.legs;
+
+    console.log(props.pinned);
+
     return (
-        <Card style={style}>
-        <div className="resContainer" key={props.id} onClick={() => {
+        <Card>
+        <div
+            className="resContainer"
+            key={props.id} onClick={() => {
             let points = [];
             legs.forEach(leg => {
                 points = points.concat(decodePolyline(leg.legGeometry.points).map(point => [point.lng, point.lat]));
@@ -25,13 +30,13 @@ function ResContainer(props) {
             <div>Fine: {endTime.toLocaleString()}</div>
             <div>Costo: {generalizedCost}</div>
         </div>
+        <div style={{width: "fit-content", alignSelf: "end", margin: "0.3em"}}>
+            <Button circular toggle icon={'pin'} active={props.pinned} onClick={() => {
+                props.onClick(itin, !props.pinned);
+            }}/>
+        </div>
         </Card>
     );
-}
-
-const style = {
-    width: "100%",
-    padding: 10
 }
 
 ResContainer.propTypes = {
@@ -41,7 +46,8 @@ ResContainer.propTypes = {
 }
 
 ResContainer.defaultProps = {
-    collapsed: true
+    collapsed: true,
+    pinned: false
 }
 
 export default ResContainer;

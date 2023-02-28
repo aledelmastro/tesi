@@ -11,28 +11,22 @@ function ResContainer(props) {
     const walkTime = itin.walkTime;
     const generalizedCost = itin.generalizedCost;
     const legs = itin.legs;
-
-    console.log(props.pinned);
+    const color = props.color;
 
     return (
-        <Card>
-        <div
-            className="resContainer"
-            key={props.id} onClick={() => {
-            let points = [];
-            legs.forEach(leg => {
-                points = points.concat(decodePolyline(leg.legGeometry.points).map(point => [point.lng, point.lat]));
-            });
-            props.plotResult(points, props.id);
-        }}>
+        <Card style={{borderLeft: "3px solid "+color}}>
+        <div className="resContainer" key={props.id}>
             <div>Durata: {duration.toISOString().substr(11, 8)}</div>
             <div>Inizio: {startTime.toLocaleString()}</div>
             <div>Fine: {endTime.toLocaleString()}</div>
             <div>Costo: {generalizedCost}</div>
         </div>
         <div style={{width: "fit-content", alignSelf: "end", margin: "0.3em"}}>
-            <Button circular toggle icon={'pin'} active={props.pinned} onClick={() => {
-                props.onClick(itin, !props.pinned);
+            <Button circular toggle icon={props.displayed ? 'close' : 'map outline'} active={props.displayed} onClick={() => {
+                props.onDisplay();
+            }}/>
+            <Button circular toggle icon={props.pinned ? 'unlock' : 'lock'} active={props.pinned} onClick={() => {
+                props.onPin(itin, !props.pinned);
             }}/>
         </div>
         </Card>

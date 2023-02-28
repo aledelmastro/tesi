@@ -7,17 +7,17 @@ function formatCoordinates(lat, lon) {
     return lat+','+lon;
 }
 
-async function requestItinerary(from, to, filters, time, date, mode, locale, callback) {
+async function requestItinerary(from, to, body, time, date, mode, locale, callback) {
     const url = baseUrl + "/plan";
 
-    const res = await axios.post(url, filters,{
+    const res = await axios.post(url, body,{
         params:{
             //fromPlace: '45.06591,7.66738',
             fromPlace: from,
             //toPlace: '45.06779,7.69394',
             toPlace: to,
             time: '9:37am',
-            date: '11-11-2022',
+            date: '01-02-2023',
             mode: 'WALK',
             locale: 'it',
         },

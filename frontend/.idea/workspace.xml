@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Refactor pannelli, aggiunto filtro custom, modificato il pannello info.">
-      <change afterPath="$PROJECT_DIR$/src/components/PruningPanel.js" afterDir="false" />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Itinerari pinnati, filtri pruning.">
+      <change afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/CreateEditorFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenFilterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenAreaEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenAreaEdge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenFactor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenFactor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetEdge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetWithElevationEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetWithElevationEdge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/api/request/RoutingRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/api/request/RoutingRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CustomFilterGenerator.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/FiltersPanel.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FiltersPanel.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/SearchInputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -111,7 +121,11 @@
       <workItem from="1675851309168" duration="21257000" />
       <workItem from="1675934154443" duration="19687000" />
       <workItem from="1676121176815" duration="7654000" />
-      <workItem from="1676196012642" duration="36174000" />
+      <workItem from="1676196012642" duration="36356000" />
+      <workItem from="1676290020948" duration="796000" />
+      <workItem from="1676815564651" duration="2641000" />
+      <workItem from="1677571735250" duration="12225000" />
+      <workItem from="1677598982496" duration="7351000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -148,7 +162,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675968351408</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Itinerari pinnati, filtri pruning.">
+      <created>1676245395623</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1676245395623</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,16 +192,17 @@
     <MESSAGE value="Aggiunto inspector per vedere i &quot;green score&quot;." />
     <MESSAGE value="LayerSelector con tiles pre renderizzate." />
     <MESSAGE value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
+    <MESSAGE value="Itinerari pinnati, filtri pruning." />
+    <option name="LAST_COMMIT_MESSAGE" value="Itinerari pinnati, filtri pruning." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/components/IOTile.js</url>
-          <line>32</line>
+          <line>77</line>
           <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="15" />
+          <option name="timeStamp" value="18" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

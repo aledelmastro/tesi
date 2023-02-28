@@ -31,8 +31,8 @@ function App() {
 
     const itinsDisplayed = useRef([]);
     const [scoresAndFeatures, setScoresAndFeatures] = useState({scores: [], features: []});
-    const [layer, setLayer] = useState("");
     const [selectorDisabled, setSelectorDisabled] = useState(true);
+
 
     function setMarker(marker, lngLat) {
         if (marker.current === null)
@@ -58,23 +58,16 @@ function App() {
         hideContextMenu(false);
     }
 
-    function clear() {
-        clearStreet();
-        if (fromMarker.current !== null)
-            fromMarker.current.remove();
-        if (toMarker.current !== null)
-            toMarker.current.remove();
-    }
-
     function clearStreet() {
         if (!mapUtils.current) return;
-        mapUtils.current.clear();
+        /*mapUtils.current.clear();*/
     }
 
-    function plotResult(points, id, collapsed) {
+    function plotResult(points, id, color) {
         if (!mapUtils.current) return;
-        mapUtils.current.addItinerary(points, "itin");
-        itinsDisplayed.current.push("itin");
+        const itinName = id;
+        mapUtils.current.addItinerary(points, itinName, color);
+        itinsDisplayed.current.push(itinName);
         setMarker(fromMarker, points[0]);
         setMarker(toMarker, points[points.length - 1]);
     }
@@ -201,6 +194,9 @@ function App() {
                 operators={['>','<']}
                 showInfoBox={showInfoBox}
                 setShowInfoBox={setShowInfoBox}
+                deleteRes={(id) => {
+                    mapUtils.current.removeItinerary(id);
+                }}
             />
             <ContextMenu
                 setTo={() => updateFromTo(false)}

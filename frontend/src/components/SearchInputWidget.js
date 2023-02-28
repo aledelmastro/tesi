@@ -19,7 +19,7 @@ const newFeature = (name, presence) => {
     }
 }
 
-async function submitRequest(event, props, features, scores, opMap, valMap, preMap) {
+async function submitRequest(event, props, features, scores, opMap, valMap, formula, variables/*, preMap*/) {
     event.preventDefault();
 
     const preF = [];
@@ -51,16 +51,21 @@ async function submitRequest(event, props, features, scores, opMap, valMap, preM
         }
     });
 
-    const filters = {
+    const body = {
         "scores": postS,
         "features": postF,
         "preScores": preS,
         "preFeatures": preF
     }
 
+    if (formula) {
+        body["formula"] = formula;
+        body["variables"] = variables;
+    }
+
     props.submit();
     // TODO verificare formato correto
-    const res = await requestItinerary(props.from, props.to, filters);
+    const res = await requestItinerary(props.from, props.to, body);
     props.setRes(res);
 }
 
@@ -68,17 +73,23 @@ async function submitRequest(event, props, features, scores, opMap, valMap, preM
 function SearchInputWidget(props) {
     const {setFrom, setTo, from, to, features, scores} = props;
 
+    const [formula, setFormula] = useState("");
     const opMap = useRef(new Map());
     const valMap = useRef(new Map());
     const preMap = useRef(new Map());
 
     const [active, setActive] = useState(-1);
 
+    const featuresAndScores = [];
+    features.forEach(f => featuresAndScores.push(f));
+    scores.forEach(s => featuresAndScores.push(s));
+
     return (
         <div id="widgetContainer">
-            <Form onSubmit={event => submitRequest(event, props, features, scores, opMap.current, valMap.current, preMap.current)}>
+            <Form onSubmit={event => submitRequest(event, props, features, scores, opMap.current, valMap.current, formula, featuresAndScores)}>
                 <Form.Input label={"Partenza"} placeholder={"Partenza"} onChange={setFrom} value={from} width={16}/>
                 <Form.Input label={"Arrivo"} placeholder={"Arrivo"} onChange={setTo} value={to} />
+                <Form.Input label={"Formula"} placeholder={"Formula"} onChange={(e,v) => setFormula(v.value)} value={formula} />
                 <Accordion>
                     <Accordion.Title
                         active={active === 0}

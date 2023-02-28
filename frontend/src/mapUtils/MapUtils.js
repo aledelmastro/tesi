@@ -43,7 +43,7 @@ class MapUtils {
         source.setData(source._data);
     }
 
-    addLayer (sourceName, type, style={}) {
+    addLayer (sourceName, type, color='#fa0feb') {
         if (this.map.getLayer(sourceName)) this.map.removeLayer(sourceName);
 
         this.map.addLayer({
@@ -55,20 +55,20 @@ class MapUtils {
                 'line-cap': 'round'
             },
             paint: {
-                'line-color': '#fa0feb',
+                'line-color': color,
                 'line-opacity': 0.4,
                 'line-width': 8
             }
         });
     }
 
-    addLineLayer (sourceName) {
-        this.addLayer(sourceName, 'line')
+    addLineLayer (sourceName, color) {
+        this.addLayer(sourceName, 'line', color)
     }
 
-    addItinerary(points, name) {
+    addItinerary(points, name, color = "#fa0feb") {
         const source = this.addGeoJsonSource(name);
-        this.addLineLayer(name);
+        this.addLineLayer(name, color);
         source.setData(lineString(points));
 
         this.fitBounds(points.map(p => p[0]),points.map(p => p[1]));
@@ -80,12 +80,12 @@ class MapUtils {
         this.ids = this.ids.filter(value => value !== name);
     }
 
-    clear() {
-        this.ids.forEach(id => {
-            this.map.removeLayer(id);
-            this.map.removeSource(id);
+    clear(names) {
+        console.log(names);
+        names.forEach(name => {
+            this.removeItinerary(name);
         });
-        this.ids = [];
+        /*this.ids = [];*/
     }
 
     fitBounds(lngs, lats) {

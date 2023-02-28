@@ -3,20 +3,41 @@ import React, {useRef, useState} from "react";
 import ResContainer from "./ResContainer";
 import {Button, Table} from "semantic-ui-react";
 import * as PropTypes from "prop-types";
+import {decodePolyline} from "../mapUtils/MapUtils";
 
-function IOTile({features, from, info, operators, plotResult, scores, setFrom, setTo, submit, to, showInfoBox, setShowInfoBox}) {
-    const [res, setRes] = useState([]);
-    const [itins, setItineraries] = useState({
-        res: [],
-        pinned: []
-    });
+class Itinerary {
+    constructor(itinerary, pinned, displayed) {
+        this.itinerary = itinerary;
+        this.pinned = pinned;
+        this.displayed = displayed;
+    }
+}
 
-    console.log(itins.pinned);
+const colors = ["#5d8aa8", "#e32636", "#ffbf00", "#008000", "#ff2052"];
+
+function IOTile({features, from, info, operators, plotResult, scores, setFrom, setTo, submit, to, showInfoBox, setShowInfoBox, deleteRes}) {
+    const [itins, setItineraries] = useState([]);
+
+    function updateItineraries(newItins) {
+        setItineraries(prevState => {
+            const itins = Array.from(prevState.filter(i => i.pinned));
+            newItins.forEach(ni => itins.push(new Itinerary(ni, false, false)));
+            return itins;
+        });
+    }
+
+    function plotItin(itin, id, color) {
+        let points = [];
+        itin.itinerary.legs.forEach(leg => {
+            points = points.concat(decodePolyline(leg.legGeometry.points).map(point => [point.lng, point.lat]));
+        });
+        plotResult(points, id, color);
+    }
 
     return (
         <div id={"IoTile"}>
             <SearchInputWidget
-                setRes={(itins) => setItineraries(prevState => {return{...prevState, ...{res: itins}}})}
+                setRes={(newItins) => updateItineraries(newItins)}
                 submit={submit}
                 setFrom={setFrom}
                 setTo={setTo}
@@ -27,38 +48,44 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
                 operators={operators}
             />
             {
-                itins.pinned.filter(i => !itins.res.includes(i)).map((itin, i) =>
-                    <ResContainer itin={itin} key={i} id={i} plotResult={plotResult} pinned={true}
-                                  onClick={(itinerary) => {
-                                      setItineraries(prevState => {
-                                          /*let pinnedItineraries = Array.from(prevState.pinned);*/
-                                          const pinnedItineraries = prevState.pinned.filter(i => i !== itinerary);
-
-                                          return {
-                                              res: prevState.res,
-                                              pinned: pinnedItineraries
-                                          }
-                                      })
-                                  }}
-                    />
-                )
-            }
-            {
-                itins.res.map((itin, i) =>
-                    <ResContainer itin={itin} key={i} id={i} plotResult={plotResult} pinned={false}
-                                  onClick={(itinerary) => {
-                                      setItineraries(prevState => {
-                                          let pinnedItineraries = Array.from(prevState.pinned);
-                                          let itineraries = Array.from(prevState.res);
-                                          pinnedItineraries.push(itinerary);
-                                          itineraries = itineraries.filter(i => i !== itinerary)
-
-                                          return {
-                                              res: itineraries,
-                                              pinned: pinnedItineraries
-                                          }
-                                      })
-                                  }}
+                itins.map((itin, key) =>
+                    <ResContainer itin={itin.itinerary} key={key} pinned={itin.pinned}
+                            color ={colors[key%itins.length]}
+                            displayed = {itin.displayed}
+                            onPin = {() => {
+                              setItineraries(prevState => {
+                                  const updatedItins = [];
+                                  prevState.forEach(i => {
+                                      if (i === itin) {
+                                          updatedItins.push(new Itinerary(i.itinerary, !i.pinned, i.displayed));
+                                      } else {
+                                          updatedItins.push(i);
+                                      }
+                                  });
+                                  console.log(updatedItins);
+                                  return updatedItins;
+                              });
+                            }}
+                            onDisplay = { () => {
+                                setItineraries(prevState => {
+                                    const updatedItins = [];
+                                    prevState.forEach(i => {
+                                        if (i === itin) {
+                                            updatedItins.push(new Itinerary(i.itinerary, i.pinned, !i.displayed));
+                                            if (!i.displayed) {
+                                                plotItin(itin, "itin"+key, colors[key%itins.length]);
+                                            } else {
+                                                deleteRes("itin"+key);
+                                            }
+                                        } else {
+                                            updatedItins.push(i);
+                                        }
+                                    });
+                                    console.log(updatedItins);
+                                    return updatedItins;
+                                });
+                            }}
+                            plotResult = {() => plotItin(itin, key, )} //TODO reivedere
                     />
                 )
             }

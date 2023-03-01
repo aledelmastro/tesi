@@ -6,22 +6,29 @@ import * as PropTypes from "prop-types";
 import {decodePolyline} from "../mapUtils/MapUtils";
 
 class Itinerary {
-    constructor(itinerary, pinned, displayed) {
+    constructor(itinerary, pinned, displayed, formula, id) {
         this.itinerary = itinerary;
         this.pinned = pinned;
         this.displayed = displayed;
+        this.formula = formula;
+        this.id = id;
     }
 }
 
 const colors = ["#5d8aa8", "#e32636", "#ffbf00", "#008000", "#ff2052"];
 
+function toColor(key) {
+    return colors[key%(colors.length - 1)];
+}
+
 function IOTile({features, from, info, operators, plotResult, scores, setFrom, setTo, submit, to, showInfoBox, setShowInfoBox, deleteRes}) {
     const [itins, setItineraries] = useState([]);
 
-    function updateItineraries(newItins) {
+    function updateItineraries(newItins, formula) {
+        itins.filter(i => !i.pinned).forEach(i => deleteRes(i.id));
         setItineraries(prevState => {
             const itins = Array.from(prevState.filter(i => i.pinned));
-            newItins.forEach(ni => itins.push(new Itinerary(ni, false, false)));
+            newItins.forEach(ni => itins.push(new Itinerary(ni, false, false, formula)));
             return itins;
         });
     }
@@ -37,7 +44,7 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
     return (
         <div id={"IoTile"}>
             <SearchInputWidget
-                setRes={(newItins) => updateItineraries(newItins)}
+                setRes={(newItins, formula) => updateItineraries(newItins,formula)}
                 submit={submit}
                 setFrom={setFrom}
                 setTo={setTo}
@@ -50,14 +57,15 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
             {
                 itins.map((itin, key) =>
                     <ResContainer itin={itin.itinerary} key={key} pinned={itin.pinned}
-                            color ={colors[key%itins.length]}
+                            formula = {itin.formula}
+                            color ={toColor(key)}
                             displayed = {itin.displayed}
                             onPin = {() => {
                               setItineraries(prevState => {
                                   const updatedItins = [];
                                   prevState.forEach(i => {
                                       if (i === itin) {
-                                          updatedItins.push(new Itinerary(i.itinerary, !i.pinned, i.displayed));
+                                          updatedItins.push(new Itinerary(i.itinerary, !i.pinned, i.displayed, i.formula, i.id));
                                       } else {
                                           updatedItins.push(i);
                                       }
@@ -71,9 +79,9 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
                                     const updatedItins = [];
                                     prevState.forEach(i => {
                                         if (i === itin) {
-                                            updatedItins.push(new Itinerary(i.itinerary, i.pinned, !i.displayed));
+                                            updatedItins.push(new Itinerary(i.itinerary, i.pinned, !i.displayed, i.formula, "itin"+key));
                                             if (!i.displayed) {
-                                                plotItin(itin, "itin"+key, colors[key%itins.length]);
+                                                plotItin(itin, "itin"+key, toColor(key));
                                             } else {
                                                 deleteRes("itin"+key);
                                             }

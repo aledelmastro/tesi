@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Itinerari pinnati, filtri pruning.">
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Itinerari multipli, formula, migliorato il pin.">
       <change afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/CreateEditorFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenFilterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenRequest.java" afterDir="false" />
@@ -14,12 +14,9 @@
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/calls/calls.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/calls/calls.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/SearchInputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapUtils/MapUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +122,8 @@
       <workItem from="1676290020948" duration="796000" />
       <workItem from="1676815564651" duration="2641000" />
       <workItem from="1677571735250" duration="12225000" />
-      <workItem from="1677598982496" duration="7351000" />
+      <workItem from="1677598982496" duration="7942000" />
+      <workItem from="1677679907669" duration="5988000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -169,7 +167,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676245395623</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Itinerari multipli, formula, migliorato il pin.">
+      <created>1677609663848</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1677609663848</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,18 +198,7 @@
     <MESSAGE value="LayerSelector con tiles pre renderizzate." />
     <MESSAGE value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
     <MESSAGE value="Itinerari pinnati, filtri pruning." />
-    <option name="LAST_COMMIT_MESSAGE" value="Itinerari pinnati, filtri pruning." />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/components/IOTile.js</url>
-          <line>77</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Itinerari multipli, formula, migliorato il pin." />
+    <option name="LAST_COMMIT_MESSAGE" value="Itinerari multipli, formula, migliorato il pin." />
   </component>
 </project>

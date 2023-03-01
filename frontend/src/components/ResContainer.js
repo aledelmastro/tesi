@@ -12,14 +12,16 @@ function ResContainer(props) {
     const generalizedCost = itin.generalizedCost;
     const legs = itin.legs;
     const color = props.color;
+    const formula = props.formula;
 
     return (
-        <Card style={{borderLeft: "3px solid "+color}}>
+        <Card style={{borderLeft: "10px solid "+color}}>
         <div className="resContainer" key={props.id}>
             <div>Durata: {duration.toISOString().substr(11, 8)}</div>
             <div>Inizio: {startTime.toLocaleString()}</div>
             <div>Fine: {endTime.toLocaleString()}</div>
             <div>Costo: {generalizedCost}</div>
+            <div>Formula: {formula}</div>
         </div>
         <div style={{width: "fit-content", alignSelf: "end", margin: "0.3em"}}>
             <Button circular toggle icon={props.displayed ? 'close' : 'map outline'} active={props.displayed} onClick={() => {

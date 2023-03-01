@@ -66,7 +66,7 @@ async function submitRequest(event, props, features, scores, opMap, valMap, form
     props.submit();
     // TODO verificare formato correto
     const res = await requestItinerary(props.from, props.to, body);
-    props.setRes(res);
+    props.setRes(res, formula);
 }
 
 

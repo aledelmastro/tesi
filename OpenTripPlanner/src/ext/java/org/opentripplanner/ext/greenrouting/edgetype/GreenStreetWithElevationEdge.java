@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.model.P2;
+import org.opentripplanner.routing.api.request.RoutingRequest;
+import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateEditor;
+import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.edgetype.StreetWithElevationEdge;
@@ -94,5 +98,12 @@ public class GreenStreetWithElevationEdge extends StreetWithElevationEdge implem
         greenEdge.wayId = e.wayId;
 
         return greenEdge;
+    }
+
+    @Override
+    protected StateEditor doTraverse(
+            State s0, RoutingRequest options, TraverseMode traverseMode, boolean walkingBike
+    ) {
+        return greenTraverse(s0, options, traverseMode, walkingBike, this, this::createEditor);
     }
 }

@@ -1,0 +1,10 @@
+Buffer size: 0.1
+Edges with at least one corresponding featureDescription: 1
+Edges without at least one corresponding featureDescription: 0
+Features without corresponding edges: 0
+Edges successfully mapped: 1
+Features successfully mapped: 2
+Total number of features: 2
+Total number of edges: 1
+Total number of green edges: 1
+Total number of green edges: 1 (100.0% of total).

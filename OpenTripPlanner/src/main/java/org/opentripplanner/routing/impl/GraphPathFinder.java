@@ -79,6 +79,7 @@ public class GraphPathFinder {
         }
 
         options.dominanceFunction = new DominanceFunction.MinimumWeight(); // FORCING the dominance function to weight only
+        /*options.dominanceFunction = new DominanceFunction.Green();*/ // FORCING the dominance function to weight only
         LOG.debug("rreq={}", options);
 
         // Choose an appropriate heuristic for goal direction.

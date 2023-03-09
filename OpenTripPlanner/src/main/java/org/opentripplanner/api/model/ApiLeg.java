@@ -1,12 +1,12 @@
 package org.opentripplanner.api.model;
 
+import org.opentripplanner.ext.greenrouting.api.model.ApiGreenInfo;
 import org.opentripplanner.util.model.EncodedPolylineBean;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
- /**
+/**
  * One leg of a trip -- that is, a temporally continuous piece of the journey that takes place on a
  * particular vehicle (or on foot).
  */
@@ -215,6 +215,8 @@ public class ApiLeg {
       * @deprecated This is always null or false, the information is now stored per walk step
       */
     public Boolean walkingBike;
+
+    public ApiGreenInfo greenInfo;
 
      /**
      * The leg's duration in seconds

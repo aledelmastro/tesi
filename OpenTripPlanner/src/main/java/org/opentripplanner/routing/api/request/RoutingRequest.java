@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.annotation.Nonnull;
+import net.objecthunter.exp4j.Expression;
 import org.geotools.geojson.geom.GeometryJSON;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -96,6 +97,8 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
     public final List<ScoreDescription> filterScoreDescriptions = new ArrayList<>();
     public final List<FeatureDescription> preFilterFeatureDescriptions = new ArrayList<>();
     public final List<ScoreDescription> preFilterScoreDescriptions = new ArrayList<>();
+
+    public Expression expression;
 
     /** The start location */
     public GenericLocation from;

@@ -271,6 +271,10 @@ public abstract class GraphPathToItineraryMapper {
                 .map(e -> ((GreenFactor) e).getFeatures())
                 .collect(Collectors.toList()));
 
+        leg.setArcLengths(edges.stream()
+                .filter(e -> e instanceof GreenFactor)
+                .map(e -> e.getDistanceMeters())
+                .collect(Collectors.toList()));
 
         leg.setRentedVehicle(firstState.isRentingVehicle());
         leg.setWalkingBike(false);

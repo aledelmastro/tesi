@@ -18,6 +18,7 @@ public class GreenStreetLeg extends StreetLeg implements AdditionalParams {
 
     private List<Map<String, Double>> numericalP;
     private List<Map<String, Boolean>> booleanP;
+    private List<Double> arcLengths;
 
     public GreenStreetLeg(
             TraverseMode mode,
@@ -55,5 +56,13 @@ public class GreenStreetLeg extends StreetLeg implements AdditionalParams {
     @Override
     public List<Map<String, Boolean>> getBoolean() {
         return this.booleanP;
+    }
+
+    public List<Double> getArcsLength() {
+        return this.arcLengths;
+    }
+
+    public void setArcLengths(List<Double> arcLengths) {
+        this.arcLengths = arcLengths;
     }
 }

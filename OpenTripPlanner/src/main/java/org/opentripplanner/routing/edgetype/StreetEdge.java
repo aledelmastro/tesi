@@ -218,7 +218,7 @@ public class StreetEdge extends Edge implements BikeWalkableEdge, Cloneable, Car
      * @param mode
      * @return
      */
-    private boolean canTraverse(RoutingRequest options, TraverseMode mode) {
+    public boolean canTraverse(RoutingRequest options, TraverseMode mode) {
         if (mode.isWalking() && options.wheelchairAccessible) {
             if (!isWheelchairAccessible()) {
                 return false;
@@ -322,7 +322,7 @@ public class StreetEdge extends Edge implements BikeWalkableEdge, Cloneable, Car
     }
 
     /** return a StateEditor rather than a State so that we can make parking/mode switch modifications for kiss-and-ride. */
-    private StateEditor doTraverse(
+    protected StateEditor doTraverse(
             State s0,
             RoutingRequest options,
             TraverseMode traverseMode,
@@ -496,7 +496,7 @@ public class StreetEdge extends Edge implements BikeWalkableEdge, Cloneable, Car
      * Since a Vertex may be arrived at with and without a no-thru restriction, the logic in
      * DominanceFunction#betterOrEqualAndComparable treats the two cases as separate.
      */
-    private boolean isTraversalBlockedByNoThruTraffic(
+    public boolean isTraversalBlockedByNoThruTraffic(
             TraverseMode traverseMode,
             Edge backEdge,
             State s0,

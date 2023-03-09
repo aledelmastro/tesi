@@ -4,18 +4,20 @@ import static java.util.Objects.requireNonNullElse;
 
 import java.util.List;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import net.objecthunter.exp4j.ExpressionBuilder;
 import org.glassfish.grizzly.http.server.Request;
+import org.opentripplanner.api.common.Message;
 import org.opentripplanner.api.common.ParameterException;
 import org.opentripplanner.api.resource.PlannerResource;
 import org.opentripplanner.api.resource.TripPlannerResponse;
-import org.opentripplanner.ext.greenrouting.api.resource.filters.GreenFilterRequest;
+import org.opentripplanner.ext.greenrouting.api.resource.filters.GreenRequest;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +26,16 @@ import org.slf4j.LoggerFactory;
 public class GreenPlannerResource extends PlannerResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreenPlannerResource.class);
-    private GreenFilterRequest gfr = new GreenFilterRequest();
+    private GreenRequest gr = new GreenRequest();
 
-    @PUT
+    @POST
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON)
     public TripPlannerResponse plan(
-            @Context UriInfo uriInfo, @Context Request grizzlyRequest, GreenFilterRequest gfr
+            @Context UriInfo uriInfo, @Context Request grizzlyRequest, GreenRequest gr
     ) {
-        this.gfr = gfr;
+        this.gr = gr;
+
         return plan(uriInfo, grizzlyRequest);
     }
 
@@ -44,13 +47,25 @@ public class GreenPlannerResource extends PlannerResource {
         request.preFilterFeatureDescriptions.clear();
         request.preFilterScoreDescriptions.clear();
 
-        request.filterFeatureDescriptions.addAll(requireNonNullElse(gfr.getFeatures(), List.of()));
-        request.filterScoreDescriptions.addAll(requireNonNullElse(gfr.getScores(), List.of()));
-        request.preFilterFeatureDescriptions.addAll(requireNonNullElse(gfr.getPreFeatures(), List.of()));
-        request.preFilterScoreDescriptions.addAll(requireNonNullElse(gfr.getPreScores(), List.of()));
+        request.filterFeatureDescriptions.addAll(requireNonNullElse(gr.getFeatures(), List.of()));
+        request.filterScoreDescriptions.addAll(requireNonNullElse(gr.getScores(), List.of()));
+        request.preFilterFeatureDescriptions.addAll(requireNonNullElse(gr.getPreFeatures(), List.of()));
+        request.preFilterScoreDescriptions.addAll(requireNonNullElse(gr.getPreScores(), List.of()));
 
         request.itineraryFilters.booleanParams = request.filterFeatureDescriptions;
         request.itineraryFilters.numberParams = request.filterScoreDescriptions;
+
+        if (gr.getFormula() != null && gr.getVariables() != null) {
+            var expression = new ExpressionBuilder(gr.getFormula()).variables(gr.getVariables()).build();
+            /*if (expression.validate().isValid()) {*/
+                request.expression = expression;
+/*            } else {
+                throw new ParameterException(Message.BOGUS_PARAMETER); // TODO valutare un errore specifico
+            }*/
+        }
+        else {
+            request.expression = null;
+        }
 
         return request;
     }

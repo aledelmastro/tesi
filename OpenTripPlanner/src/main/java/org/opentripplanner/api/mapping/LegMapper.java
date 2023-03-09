@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import org.opentripplanner.api.model.ApiAlert;
 import org.opentripplanner.api.model.ApiLeg;
+import org.opentripplanner.ext.greenrouting.api.mapping.GreenInfoMapper;
+import org.opentripplanner.ext.greenrouting.model.plan.GreenStreetLeg;
 import org.opentripplanner.model.PickDrop;
 import org.opentripplanner.model.plan.Leg;
 import org.opentripplanner.util.PolylineEncoder;
@@ -16,6 +18,7 @@ public class LegMapper {
     private final AlertMapper alertMapper;
     private final PlaceMapper placeMapper;
     private final boolean addIntermediateStops;
+    private final GreenInfoMapper greenInfoMapper;
 
     public LegMapper(Locale locale, boolean addIntermediateStops) {
         this.walkStepMapper = new WalkStepMapper(locale);
@@ -23,6 +26,7 @@ public class LegMapper {
         this.alertMapper = new AlertMapper(locale);
         this.placeMapper = new PlaceMapper(locale);
         this.addIntermediateStops = addIntermediateStops;
+        this.greenInfoMapper = new GreenInfoMapper();
     }
 
     public List<ApiLeg> mapLegs(List<Leg> domain) {
@@ -128,6 +132,11 @@ public class LegMapper {
         api.rentedBike = domain.getRentedVehicle();
         api.walkingBike = domain.getWalkingBike();
 
+        // adds information about green/blue characterization of
+        // the street edges that are part of the leg.
+        // TODO It might be better to do this in a subclass of LegMapper
+        if (domain instanceof GreenStreetLeg)
+            api.greenInfo = greenInfoMapper.mapGreenInfo((GreenStreetLeg) domain);
         return api;
     }
 

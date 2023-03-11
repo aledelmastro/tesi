@@ -7,7 +7,9 @@ FROM openjdk:11
 COPY --from=build /usr/src/app/target/otp-2.1.0-shaded.jar /otp-2.1.0-shaded.jar
 COPY /data /data
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/otp-2.1.0-shaded.jar", "--build", "--serve", "/data"]
+ENTRYPOINT ["java","-jar","/otp-2.1.0-shaded.jar"]
+CMD ["--load", "./data"]
+
 
 # impostare java 11
 # sudo update-alternatives --config java

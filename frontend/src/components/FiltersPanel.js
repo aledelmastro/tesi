@@ -22,7 +22,7 @@ function FiltersPanel(props) {
     return <div id={"layersCard"}>
         <Menu tabular secondary pointing>
             <Menu.Item
-                name='Semplice'
+                name='Simple inspection'
                 active={activeItem === 'Semplice'}
                 onClick={handleItemClick}
             />

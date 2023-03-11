@@ -67,6 +67,7 @@ class MapUtils {
     }
 
     addItinerary(points, name, color = "#fa0feb") {
+        // TODO valutare se aggiungerlo anche quando c'è già
         const source = this.addGeoJsonSource(name);
         this.addLineLayer(name, color);
         source.setData(lineString(points));

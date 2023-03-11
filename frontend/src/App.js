@@ -76,7 +76,8 @@ function App() {
         if (map.current) return; // initialize map only once
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/streets-v12',
+            style: 'mapbox://styles/ale-delmastro/clex0gk7l00n401mshc14kvvt',
+            /*style: 'mapbox://styles/mapbox/streets-v12',*/
             /*style: 'mapbox://styles/mapbox/satellite-v9',*/
             center: [lng, lat],
             zoom: zoom,

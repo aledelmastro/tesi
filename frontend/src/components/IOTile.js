@@ -1,36 +1,64 @@
 import SearchInputWidget from "./SearchInputWidget";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ResContainer from "./ResContainer";
-import {Button, Table} from "semantic-ui-react";
 import * as PropTypes from "prop-types";
 import {decodePolyline} from "../mapUtils/MapUtils";
+import InfoBox from "./InfoBox";
 
 class Itinerary {
-    constructor(itinerary, pinned, displayed, formula, id) {
+    constructor(itinerary, id, formula = "", isNew = true, color = "#5d8aa8") {
         this.itinerary = itinerary;
-        this.pinned = pinned;
-        this.displayed = displayed;
         this.formula = formula;
         this.id = id;
+        this.isNew = isNew;
+        this.color = color;
     }
 }
 
-const colors = ["#5d8aa8", "#e32636", "#ffbf00", "#008000", "#ff2052"];
+const colors = ["#2a52be", "#e32636", "#ffbf00", "#008000", "#007aa5", "#ed872d", "#00bfff", "#e4d00a", "#ff3800"];
 
 function toColor(key) {
     return colors[key%(colors.length - 1)];
 }
 
+function toId(key) {
+    return ""+key;
+}
+
 function IOTile({features, from, info, operators, plotResult, scores, setFrom, setTo, submit, to, showInfoBox, setShowInfoBox, deleteRes}) {
     const [itins, setItineraries] = useState([]);
+    const [displayed, setDisplayed] = useState(new Set());
+    const [pinned, setPinned] = useState(new Set());
+    const colorIndex = useRef(0);
+
+    function nextColor() {
+        const color = toColor(colorIndex.current);
+        colorIndex.current += 1;
+        return color;
+    }
+
+    // To automatically plot the first of the new itineraries
+    useEffect(() => {
+        const newlyAdded = itins.filter(i => i.isNew);
+        if (newlyAdded !== null && newlyAdded.length > 0) {
+            newlyAdded.forEach(na => na.isNew = false);
+            plotItin(newlyAdded[0], newlyAdded[0].id, newlyAdded[0].color);
+        }
+        if (newlyAdded[0])
+            setDisplayedItin(newlyAdded[0], true);
+    }, [itins]);
 
     function updateItineraries(newItins, formula) {
-        itins.filter(i => !i.pinned).forEach(i => deleteRes(i.id));
-        setItineraries(prevState => {
-            const itins = Array.from(prevState.filter(i => i.pinned));
-            newItins.forEach(ni => itins.push(new Itinerary(ni, false, false, formula)));
-            return itins;
-        });
+        itins.filter(i => !displayed.has(i)).forEach(i => deleteRes(i.id));
+
+        if (newItins !== null && newItins) {
+            setItineraries(prevState => {
+                const itins = Array.from(prevState.filter(i => pinned.has(i)));
+                itins.forEach(i => i.isNew = false);
+                newItins.forEach((ni, i) => itins.push(new Itinerary(ni, toId(itins.length+i), formula, true, nextColor())));
+                return itins;
+            });
+        }
     }
 
     function plotItin(itin, id, color) {
@@ -39,6 +67,36 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
             points = points.concat(decodePolyline(leg.legGeometry.points).map(point => [point.lng, point.lat]));
         });
         plotResult(points, id, color);
+    }
+
+    function setPinnedItin(itinerary, isPinned) {
+        setPinned(prevState => {
+            const updatedItins = new Set(prevState.keys());
+            if (prevState.has(itinerary) && !isPinned)
+                updatedItins.delete(itinerary);
+
+            if (!prevState.has(itinerary) && isPinned)
+                updatedItins.add(itinerary);
+
+            return updatedItins;
+        });
+    }
+
+    function setDisplayedItin(itinerary, isDisplayed) {
+        setDisplayed(prevState => {
+            const updatedItins = new Set(prevState.keys());
+            if (prevState.has(itinerary) && !isDisplayed) {
+                updatedItins.delete(itinerary);
+                deleteRes(itinerary.id);
+            }
+
+            if (!prevState.has(itinerary) && isDisplayed) {
+                updatedItins.add(itinerary);
+                plotItin(itinerary, itinerary.id, itinerary.color);
+            }
+
+            return updatedItins;
+        });
     }
 
     return (
@@ -55,72 +113,22 @@ function IOTile({features, from, info, operators, plotResult, scores, setFrom, s
                 operators={operators}
             />
             {
-                itins.map((itin, key) =>
-                    <ResContainer itin={itin.itinerary} key={key} pinned={itin.pinned}
-                            formula = {itin.formula}
-                            color ={toColor(key)}
-                            displayed = {itin.displayed}
-                            onPin = {() => {
-                              setItineraries(prevState => {
-                                  const updatedItins = [];
-                                  prevState.forEach(i => {
-                                      if (i === itin) {
-                                          updatedItins.push(new Itinerary(i.itinerary, !i.pinned, i.displayed, i.formula, i.id));
-                                      } else {
-                                          updatedItins.push(i);
-                                      }
-                                  });
-                                  console.log(updatedItins);
-                                  return updatedItins;
-                              });
-                            }}
-                            onDisplay = { () => {
-                                setItineraries(prevState => {
-                                    const updatedItins = [];
-                                    prevState.forEach(i => {
-                                        if (i === itin) {
-                                            updatedItins.push(new Itinerary(i.itinerary, i.pinned, !i.displayed, i.formula, "itin"+key));
-                                            if (!i.displayed) {
-                                                plotItin(itin, "itin"+key, toColor(key));
-                                            } else {
-                                                deleteRes("itin"+key);
-                                            }
-                                        } else {
-                                            updatedItins.push(i);
-                                        }
-                                    });
-                                    console.log(updatedItins);
-                                    return updatedItins;
-                                });
-                            }}
-                            plotResult = {() => plotItin(itin, key, )} //TODO reivedere
+                itins.map((itinerary, i) =>
+                    <ResContainer
+                        itin={itinerary.itinerary}
+                        key={i}
+                        pinned={pinned.has(itinerary)}
+                        displayed = {displayed.has(itinerary)}
+                        formula = {itinerary.formula}
+                        color ={itinerary.color}
+                        onPin = {(isPinned) => setPinnedItin(itinerary, isPinned)}
+                        onDisplay = {(isDisplayed) => setDisplayedItin(itinerary, isDisplayed)}
                     />
                 )
             }
             {
                 showInfoBox && info.length > 0 ?
-                    <div id={"InfoBox"}>
-                        {info.map((v, i) => {
-                            return(
-                                <Table compact basic key = {i}>
-                                    <Table.Header>
-                                        <Table.Row>
-                                            <Table.HeaderCell>Dettagli</Table.HeaderCell>
-                                            <Button icon={"close"} onClick={() => setShowInfoBox(false)} />
-                                        </Table.Row>
-                                    </Table.Header>
-                                    <Table.Body>{
-                                        Object.keys(v).map(k =>
-                                            <Table.Row key={k}>
-                                                <Table.Cell>{k}</Table.Cell>
-                                                <Table.Cell>{v[k]}</Table.Cell>
-                                            </Table.Row>
-                                        )}</Table.Body>
-                                </Table>
-                            )
-
-                        })}
-                    </div>
+                    <InfoBox info={info} setShowInfoBox={setShowInfoBox} />
                     :
                     <></>
             }

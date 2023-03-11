@@ -17,18 +17,18 @@ function ResContainer(props) {
     return (
         <Card style={{borderLeft: "10px solid "+color}}>
         <div className="resContainer" key={props.id}>
-            <div>Durata: {duration.toISOString().substr(11, 8)}</div>
-            <div>Inizio: {startTime.toLocaleString()}</div>
-            <div>Fine: {endTime.toLocaleString()}</div>
-            <div>Costo: {generalizedCost}</div>
-            <div>Formula: {formula}</div>
+            <div><b>Duration</b>: {duration.toISOString().substr(11, 8)}</div>
+            <div><b>From</b>: {startTime.toLocaleString()}</div>
+            <div><b>To</b>: {endTime.toLocaleString()}</div>
+            <div><b>Total cost</b>: {generalizedCost}</div>
+            <div><b>Formula</b>: {formula}</div>
         </div>
         <div style={{width: "fit-content", alignSelf: "end", margin: "0.3em"}}>
             <Button circular toggle icon={props.displayed ? 'close' : 'map outline'} active={props.displayed} onClick={() => {
-                props.onDisplay();
+                props.onDisplay(!props.displayed);
             }}/>
             <Button circular toggle icon={props.pinned ? 'unlock' : 'lock'} active={props.pinned} onClick={() => {
-                props.onPin(itin, !props.pinned);
+                props.onPin(!props.pinned);
             }}/>
         </div>
         </Card>

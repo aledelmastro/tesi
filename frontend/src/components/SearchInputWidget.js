@@ -87,8 +87,8 @@ function SearchInputWidget(props) {
     return (
         <div id="widgetContainer">
             <Form onSubmit={event => submitRequest(event, props, features, scores, opMap.current, valMap.current, formula, featuresAndScores)}>
-                <Form.Input label={"Partenza"} placeholder={"Partenza"} onChange={setFrom} value={from} width={16}/>
-                <Form.Input label={"Arrivo"} placeholder={"Arrivo"} onChange={setTo} value={to} />
+                <Form.Input label={"From"} placeholder={"From"} onChange={setFrom} value={from} width={16}/>
+                <Form.Input label={"To"} placeholder={"To"} onChange={setTo} value={to} />
                 <Form.Input label={"Formula"} placeholder={"Formula"} onChange={(e,v) => setFormula(v.value)} value={formula} />
                 <Accordion>
                     <Accordion.Title
@@ -105,7 +105,7 @@ function SearchInputWidget(props) {
                     </Accordion.Content>
                 </Accordion>
                 <Button id={"submit"} color='olive' type="submit">
-                    Cerca
+                    Search
                 </Button>
             </Form>
         </div>

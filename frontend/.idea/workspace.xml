@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Itinerari multipli, formula, migliorato il pin.">
-      <change afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/CreateEditorFunction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/GreenPlannerResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenFilterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/api/resource/filters/GreenRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenAreaEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenAreaEdge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenFactor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenFactor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetEdge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetWithElevationEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/ext/java/org/opentripplanner/ext/greenrouting/edgetype/GreenStreetWithElevationEdge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/api/request/RoutingRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/api/request/RoutingRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/impl/GraphPathFinder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../OpenTripPlanner/src/main/java/org/opentripplanner/routing/spt/DominanceFunction.java" afterDir="false" />
+    <list default="true" id="2aff6585-df93-450b-909a-3db6871bb9f4" name="Changes" comment="Aggiunta formula nei risultati.">
+      <change afterPath="$PROJECT_DIR$/src/components/InfoBox.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OpenTripPlanner/data/graph.obj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/IOTile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IOTile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ResContainer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ResContainer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SearchInputWidget.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SearchInputWidget.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,8 +55,38 @@
     <property name="ts.external.directory.path" value="C:\Users\Alessandro\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6461.79\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="JavaScript Debug.Debug">
+  <component name="RunManager" selected="npm.build">
     <configuration name="Debug" type="JavascriptDebugType" uri="http://localhost:3000">
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
       <method v="2" />
     </configuration>
     <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
@@ -83,8 +101,15 @@
     </configuration>
     <list>
       <item itemvalue="JavaScript Debug.Debug" />
+      <item itemvalue="npm.build" />
       <item itemvalue="npm.start" />
+      <item itemvalue="npm.build" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.build" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -123,7 +148,14 @@
       <workItem from="1676815564651" duration="2641000" />
       <workItem from="1677571735250" duration="12225000" />
       <workItem from="1677598982496" duration="7942000" />
-      <workItem from="1677679907669" duration="5988000" />
+      <workItem from="1677679907669" duration="6975000" />
+      <workItem from="1677778118605" duration="769000" />
+      <workItem from="1677842306547" duration="858000" />
+      <workItem from="1677852976998" duration="15531000" />
+      <workItem from="1678099609111" duration="6291000" />
+      <workItem from="1678117431049" duration="6042000" />
+      <workItem from="1678353492366" duration="603000" />
+      <workItem from="1678556410794" duration="1842000" />
     </task>
     <task id="LOCAL-00001" summary="Ripulito progetto intellij">
       <created>1671806660393</created>
@@ -174,7 +206,14 @@
       <option name="project" value="LOCAL" />
       <updated>1677609663848</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Aggiunta formula nei risultati.">
+      <created>1677696993812</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1677696993812</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,6 +238,7 @@
     <MESSAGE value="Refactor pannelli, aggiunto filtro custom, modificato il pannello info." />
     <MESSAGE value="Itinerari pinnati, filtri pruning." />
     <MESSAGE value="Itinerari multipli, formula, migliorato il pin." />
-    <option name="LAST_COMMIT_MESSAGE" value="Itinerari multipli, formula, migliorato il pin." />
+    <MESSAGE value="Aggiunta formula nei risultati." />
+    <option name="LAST_COMMIT_MESSAGE" value="Aggiunta formula nei risultati." />
   </component>
 </project>

@@ -2,11 +2,11 @@
 {
   "greenRouting" :
   {
-    "inputFile": "data/streets_withcharacterization_with1mbufferTC.geojson",
+    "inputFile": "data/green/streets_withcharacterization_with1mbufferTC.geojson",
 	"id": "osm_id",
 	"bufferSize": 0.00001, 
-	"outputFile": "data/LDGeojson.json",
-	"logFile": "data/log.txt",
+	"outputFile": "data/green/LDGeojson.json",
+	"logFile": "data/green/log.txt",
 	"scores": [
 		"tree_coverage", 
 		"inside_parks",

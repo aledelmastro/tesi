@@ -27,6 +27,7 @@ public class GreenPlannerResource extends PlannerResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreenPlannerResource.class);
     private GreenRequest gr = new GreenRequest();
+    private List<String> defaultVaribales = List.of("weight");
 
     @POST
     @Consumes("application/json")
@@ -35,6 +36,9 @@ public class GreenPlannerResource extends PlannerResource {
             @Context UriInfo uriInfo, @Context Request grizzlyRequest, GreenRequest gr
     ) {
         this.gr = gr;
+
+        if (gr.getVariables() != null)
+            gr.getVariables().addAll(defaultVaribales);
 
         return plan(uriInfo, grizzlyRequest);
     }

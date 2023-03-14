@@ -3,7 +3,9 @@ package org.opentripplanner.ext.greenrouting.edgetype;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.logging.Logger;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import org.opentripplanner.ext.greenrouting.GreenRouting;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -11,8 +13,10 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
+import org.slf4j.LoggerFactory;
 
 public interface GreenFactor {
+    org.slf4j.Logger LOG = LoggerFactory.getLogger(GreenFactor.class);
 
     double getGreenyness();
 
@@ -151,16 +155,13 @@ public interface GreenFactor {
             var variables = new HashMap<>(getScores());
             getFeatures().forEach((key, value) -> variables.put(key, value ? 1d : 0d));
 
-            if (options.expression.getVariableNames().contains("weight")) {
+            if (options.expression.getVariableNames().contains("weight"))
                 variables.put("weight", weight);
-                var value = options.expression.setVariables(variables).evaluate();
-                weight = value < 0 ? 0 : value;
-            } else {
-                var value = options.expression.setVariables(variables).evaluate();
-                if (weight-value < 0)
-                    weight = 0;
-                else
-                    weight -= value;
+
+            var expression = options.expression.setVariables(variables);
+            if (expression.validate().isValid()) {
+                weight = expression.evaluate() * edge.getDistanceMeters();
+                if (weight < 0) weight = 0;
             }
         }
 

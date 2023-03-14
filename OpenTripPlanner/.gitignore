@@ -38,6 +38,6 @@ target/
 # for local dev only
 src/ext/resources/reportapi/report.csv
 
-# streetGraph.obj
-# graph.obj
-# /data/
+streetGraph.obj
+graph.obj
+/data/
